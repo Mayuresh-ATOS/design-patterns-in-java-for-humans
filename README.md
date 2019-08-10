@@ -4,7 +4,7 @@
 ⚠️ Disclamer This repo is a version of the <a href="https://github.com/kamranahmedse/design-patterns-for-humans">original </a> built by <a href="https://twitter.com/kamranahmedse">@kamranahmedse</a>.
 </h3>
 <p align="center">
-<b>All the credits are from him and I'm just adapting the code to C# because is my actual language at work.</b>
+<b>All the credits are from him and I'm just adapting the code to Java because is my actual language at work.</b>
 </p>
 
 ---
@@ -39,7 +39,7 @@ Wikipedia describes them as
 - Keep in mind that design patterns are solutions **to** problems, not solutions **finding** problems; so don't overthink.
 - If used in a correct place in a correct manner, they can prove to be a savior; or else they can result in a horrible mess of a code.
 
-> Also note that the code samples below are in C#, however this shouldn't stop you because the concepts are same anyways.
+> Also note that the code samples below are in Java, however this shouldn't stop you because the concepts are same anyways.
 
 ## Types of Design Patterns
 
