@@ -1,0 +1,2063 @@
+---
+
+<h3 align="center">
+⚠️ Disclamer This repo is a version of the <a href="https://github.com/kamranahmedse/design-patterns-for-humans">original </a> built by <a href="https://twitter.com/kamranahmedse">@kamranahmedse</a>.
+</h3>
+<p align="center">
+<b>All the credits are from him and I'm just adapting the code to C# because is my actual language at work.</b>
+</p>
+
+---
+
+![Design Patterns For Humans](https://cloud.githubusercontent.com/assets/11269635/23065273/1b7e5938-f515-11e6-8dd3-d0d58de6bb9a.png)
+
+---
+
+<p align="center">
+🎉 Ultra-simplified explanation to design patterns! 🎉
+</p>
+<p align="center">
+A topic that can easily make anyone's mind wobble. Here I try to make them stick in to your mind(and maybe mine) by explaining them in the <i>simplest</i> way possible.
+</p>
+
+---
+
+# Introduction
+
+Design patterns are solutions to recurring problems; **guidelines on how to tackle certain problems**. They are not classes, packages or libraries that you can plug into your application and wait for the magic to happen. These are, rather, guidelines on how to tackle certain problems in certain situations.
+
+> Design patterns are solutions to recurring problems; guidelines on how to tackle certain problems
+
+Wikipedia describes them as
+
+> In software engineering, a software design pattern is a general reusable solution to a commonly occurring problem within a given context in software design. It is not a finished design that can be transformed directly into source or machine code. It is a description or template for how to solve a problem that can be used in many different situations.
+
+## ⚠️ Be Careful
+
+- Design patterns are not a silver bullet to all your problems.
+- Do not try to force them; bad things are supposed to happen, if done so.
+- Keep in mind that design patterns are solutions **to** problems, not solutions **finding** problems; so don't overthink.
+- If used in a correct place in a correct manner, they can prove to be a savior; or else they can result in a horrible mess of a code.
+
+> Also note that the code samples below are in C#, however this shouldn't stop you because the concepts are same anyways.
+
+## Types of Design Patterns
+
+- [Creational](#creational-design-patterns)
+- [Structural](#structural-design-patterns)
+- [Behavioral](#behavioral-design-patterns)
+
+# Creational Design Patterns
+
+In plain words
+
+> Creational patterns are focused towards how to instantiate an object or group of related objects.
+
+Wikipedia says
+
+> In software engineering, creational design patterns are design patterns that deal with object creation mechanisms, trying to create objects in a manner suitable to the situation. The basic form of object creation could result in design problems or added complexity to the design. Creational design patterns solve this problem by somehow controlling this object creation.
+
+- [Simple Factory](#-simple-factory)
+- [Factory Method](#-factory-method)
+- [Abstract Factory](#-abstract-factory)
+- [Builder](#-builder)
+- [Prototype](#-prototype)
+- [Singleton](#-singleton)
+
+## 🏠 Simple Factory
+
+Real world example
+
+> Consider, you are building a house and you need doors. You can either put on your carpenter clothes, bring some wood, glue, nails and all the tools required to build the door and start building it in your house or you can simply call the factory and get the built door delivered to you so that you don't need to learn anything about the door making or to deal with the mess that comes with making it.
+
+In plain words
+
+> Simple factory simply generates an instance for client without exposing any instantiation logic to the client
+
+Wikipedia says
+
+> In object-oriented programming(OOP), a factory is an object for creating other objects – formally a factory is a function or method that returns objects of a varying prototype or class from some method call, which is assumed to be "new".
+
+**Programmatic Example**
+
+First of all we have a door interface and the implementation
+
+```c#
+interface IDoor {
+    float GetWidth();
+    float GetHeight();
+}
+
+class WoodenDoor : IDoor {
+    private float _width;
+    private float _height;
+
+    public WoodenDoor(float width, float height) {
+        _width = width;
+        _height = height;
+    }
+
+    public float GetWidth() => _width;
+
+    public float GetHeight() => _height;
+}
+```
+
+Then we have our door factory that makes the door and returns it
+
+```c#
+class DoorFactory {
+    public static WoodenDoor MakeDoor(float width, float height) => new WoodenDoor(width, height);
+}
+```
+
+And then it can be used as
+
+```c#
+// Make me a door of 100x200
+WoodenDoor door = DoorFactory.MakeDoor(100, 200);
+
+Console.WriteLine($"Width {door.GetWidth()}");
+Console.WriteLine($"Height {door.GetHeight()}");
+
+// Make me a door of 50x100
+WoodenDoor door2 = DoorFactory.MakeDoor(50, 100);
+```
+
+**When to Use?**
+
+When creating an object is not just a few assignments and involves some logic, it makes sense to put it in a dedicated factory instead of repeating the same code everywhere.
+
+## 🏭 Factory Method
+
+Real world example
+
+> Consider the case of a hiring manager. It is impossible for one person to interview for each of the positions. Based on the job opening, she has to decide and delegate the interview steps to different people.
+
+In plain words
+
+> It provides a way to delegate the instantiation logic to child classes.
+
+Wikipedia says
+
+> In class-based programming, the factory method pattern is a creational pattern that uses factory methods to deal with the problem of creating objects without having to specify the exact class of the object that will be created. This is done by creating objects by calling a factory method—either specified in an interface and implemented by child classes, or implemented in a base class and optionally overridden by derived classes—rather than by calling a constructor.
+
+**Programmatic Example**
+
+Taking our hiring manager example above. First of all we have an interviewer interface and some implementations for it
+
+```c#
+interface IInterviewer {
+    string AskQuestions();
+}
+
+class Developer : IInterviewer {
+    public string AskQuestions() => "Asking about design patterns!";
+}
+
+class CommunityExecutive : IInterviewer {
+    public string AskQuestions() => "Asking about community building";
+}
+```
+
+Now let us create our `HiringManager`
+
+```c#
+abstract class HiringManager {
+
+    // Factory method
+    abstract protected IInterviewer MakeInterviewer();
+
+    public string TakeInterview() {
+        IInterviewer interviewer = MakeInterviewer();
+        return interviewer.AskQuestions();
+    }
+}
+```
+
+Now any child can extend it and provide the required interviewer
+
+```c#
+class DevelopmentManager : HiringManager {
+    protected override IInterviewer MakeInterviewer() => new Developer();
+}
+
+class MarketingManager : HiringManager {
+    protected override IInterviewer MakeInterviewer() => new CommunityExecutive();
+}
+```
+
+and then it can be used as
+
+```c#
+DevelopmentManager devManager = new DevelopmentManager();
+System.Console.WriteLine(devManager.TakeInterview()); // Output: Asking about design patterns
+
+MarketingManager marketingManager = new MarketingManager();
+System.Console.WriteLine(marketingManager.TakeInterview()); // Output: Asking about community building.
+```
+
+**When to use?**
+
+Useful when there is some generic processing in a class but the required sub-class is dynamically decided at runtime. Or putting it in other words, when the client doesn't know what exact sub-class it might need.
+
+## 🔨 Abstract Factory
+
+Real world example
+
+> Extending our door example from Simple Factory. Based on your needs you might get a wooden door from a wooden door shop, iron door from an iron shop or a PVC door from the relevant shop. Plus you might need a guy with different kind of specialities to fit the door, for example a carpenter for wooden door, welder for iron door etc. As you can see there is a dependency between the doors now, wooden door needs carpenter, iron door needs a welder etc.
+
+In plain words
+
+> A factory of factories; a factory that groups the individual but related/dependent factories together without specifying their concrete classes.
+
+Wikipedia says
+
+> The abstract factory pattern provides a way to encapsulate a group of individual factories that have a common theme without specifying their concrete classes
+
+**Programmatic Example**
+
+Translating the door example above. First of all we have our `Door` interface and some implementation for it
+
+```c#
+interface IDoor {
+    void GetDescription();
+}
+
+class WoodenDoor : IDoor {
+    public void GetDescription() => Console.WriteLine("I am a wooden door");
+}
+
+class IronDoor : IDoor {
+    public void GetDescription() => Console.WriteLine("I am an iron door");
+}
+```
+
+Then we have some fitting experts for each door type
+
+```c#
+interface IDoorFittingExpert {
+    void GetDescription();
+}
+
+class Welder : IDoorFittingExpert {
+    public void GetDescription() => Console.WriteLine("I can only fit iron doors");
+}
+
+class Carpenter : IDoorFittingExpert {
+    public void GetDescription() => Console.WriteLine("I can only fit wooden doors");
+}
+```
+
+Now we have our abstract factory that would let us make family of related objects i.e. wooden door factory would create a wooden door and wooden door fitting expert and iron door factory would create an iron door and iron door fitting expert
+
+```c#
+interface IDoorFactory {
+    IDoor MakeDoor();
+    IDoorFittingExpert MakeFittingExpert();
+}
+
+// Wooden factory to return carpenter and wooden door
+class WoodenDoorFactory : IDoorFactory {
+    public IDoor MakeDoor() => new WoodenDoor();
+
+    public IDoorFittingExpert MakeFittingExpert() => new Carpenter();
+}
+
+// Iron door factory to get iron door and the relevant fitting expert
+class IronDoorFactory : IDoorFactory {
+    public IDoor MakeDoor() => new IronDoor();
+
+    public IDoorFittingExpert MakeFittingExpert() => new Welder();
+}
+```
+
+And then it can be used as
+
+```c#
+WoodenDoorFactory woodenFactory = new WoodenDoorFactory();
+
+IDoor door = woodenFactory.MakeDoor();
+IDoorFittingExpert expert = woodenFactory.MakeFittingExpert();
+
+door.GetDescription(); // Output: I am a wooden door
+expert.GetDescription(); // Output: I can only fit wooden doors
+
+// Same for Iron Factory
+IronDoorFactory ironFactory = new IronDoorFactory();
+
+door = ironFactory.MakeDoor();
+expert = ironFactory.MakeFittingExpert();
+
+door.GetDescription(); // Output: I am an iron door
+expert.GetDescription(); // Output: I can only fit iron doors
+```
+
+As you can see the wooden door factory has encapsulated the `carpenter` and the `wooden door` also iron door factory has encapsulated the `iron door` and `welder`. And thus it had helped us make sure that for each of the created door, we do not get a wrong fitting expert.
+
+**When to use?**
+
+When there are interrelated dependencies with not-that-simple creation logic involved
+
+## 👷 Builder
+
+Real world example
+
+> Imagine you are at Hardee's and you order a specific deal, lets say, "Big Hardee" and they hand it over to you without _any questions_; this is the example of simple factory. But there are cases when the creation logic might involve more steps. For example you want a customized Subway deal, you have several options in how your burger is made e.g what bread do you want? what types of sauces would you like? What cheese would you want? etc. In such cases builder pattern comes to the rescue.
+
+In plain words
+
+> Allows you to create different flavors of an object while avoiding constructor pollution. Useful when there could be several flavors of an object. Or when there are a lot of steps involved in creation of an object.
+
+Wikipedia says
+
+> The builder pattern is an object creation software design pattern with the intentions of finding a solution to the telescoping constructor anti-pattern.
+
+Having said that let me add a bit about what telescoping constructor anti-pattern is. At one point or the other we have all seen a constructor like below:
+
+```c#
+public Burger(int size, bool cheese = true, bool pepperoni = true, bool tomato = false, bool lettuce = true)
+{
+}
+```
+
+As you can see; the number of constructor parameters can quickly get out of hand and it might become difficult to understand the arrangement of parameters. Plus this parameter list could keep on growing if you would want to add more options in future. This is called telescoping constructor anti-pattern.
+
+**Programmatic Example**
+
+The sane alternative is to use the builder pattern. First of all we have our burger that we want to make
+
+```c#
+class Burger {
+    protected int _size;
+    protected bool _cheese = false;
+    protected bool _pepperoni = false;
+    protected bool _lettuce = false;
+    protected bool _tomato = false;
+
+    public Burger(BurgerBuilder builder) {
+        _size = builder.size;
+        _cheese = builder.cheese;
+        _pepperoni = builder.pepperoni;
+        _lettuce = builder.lettuce;
+        _tomato = builder.tomato;
+    }
+
+    public override string ToString() {
+        return $"Burger size: {_size} with: chesee: {_cheese}, pepperoni: {_pepperoni}, lettuce: {_lettuce} and tomato: {_tomato}";
+    }
+}
+```
+
+And then we have the builder
+
+```c#
+class BurgerBuilder {
+    public int size;
+    public bool cheese = false;
+    public bool pepperoni = false;
+    public bool lettuce = false;
+    public bool tomato = false;
+
+    public BurgerBuilder(int size) {
+        this.size = size;
+    }
+
+    public BurgerBuilder AddPepperoni() {
+        this.pepperoni = true;
+        return this;
+    }
+
+    public BurgerBuilder AddLettuce() {
+        this.lettuce = true;
+        return this;
+    }
+
+    public BurgerBuilder AddCheese() {
+        this.cheese = true;
+        return this;
+    }
+
+    public BurgerBuilder AddTomato() {
+        this.tomato = true;
+        return this;
+    }
+
+    public Burger Build() {
+        return new Burger(this);
+    }
+}
+```
+
+And then it can be used as:
+
+```c#
+Burger burger = new BurgerBuilder(14)
+                .AddPepperoni()
+                .AddLettuce()
+                .AddTomato()
+                .Build();
+System.Console.WriteLine(burger.ToString());
+```
+
+**When to use?**
+
+When there could be several flavors of an object and to avoid the constructor telescoping. The key difference from the factory pattern is that; factory pattern is to be used when the creation is a one step process while builder pattern is to be used when the creation is a multi step process.
+
+## 🐑 Prototype
+
+Real world example
+
+> Remember dolly? The sheep that was cloned! Lets not get into the details but the key point here is that it is all about cloning
+
+In plain words
+
+> Create object based on an existing object through cloning.
+
+Wikipedia says
+
+> The prototype pattern is a creational design pattern in software development. It is used when the type of objects to create is determined by a prototypical instance, which is cloned to produce new objects.
+
+In short, it allows you to create a copy of an existing object and modify it to your needs, instead of going through the trouble of creating an object from scratch and setting it up.
+
+**Programmatic Example**
+
+In C#, it can be easily done using `MemberwiseClone`
+
+```c#
+class Sheep {
+    protected string _name { get; set; }
+    protected string _category { get; set; }
+
+    public Sheep(string name, string category = "Mountain Sheep") {
+        _name = name;
+        _category = category;
+    }
+
+    public Sheep Clone() {
+        return(Sheep) this.MemberwiseClone();
+    }
+
+    public void SetName(string name) {
+        _name = name;
+    }
+
+    public void GetName() {
+        System.Console.WriteLine(_name);
+    }
+
+    public void SetCategory(string category) {
+        _category = category;
+    }
+
+    public void GetCategory() {
+        System.Console.WriteLine(_category);
+    }
+}
+```
+
+Then it can be cloned like below
+
+```c#
+Sheep original = new Sheep("Jolly");
+original.GetName(); // Jolly
+original.GetCategory(); // Mountain Sheep
+
+// Clone and modify what is required
+Sheep cloned = original.Clone();
+cloned.SetName("Dolly");
+cloned.GetName(); // Dolly
+cloned.GetCategory(); // Mountain sheep
+```
+
+**When to use?**
+
+When an object is required that is similar to existing object or when the creation would be expensive as compared to cloning.
+
+## 💍 Singleton
+
+Real world example
+
+> There can only be one president of a country at a time. The same president has to be brought to action, whenever duty calls. President here is singleton.
+
+In plain words
+
+> Ensures that only one object of a particular class is ever created.
+
+Wikipedia says
+
+> In software engineering, the singleton pattern is a software design pattern that restricts the instantiation of a class to one object. This is useful when exactly one object is needed to coordinate actions across the system.
+
+Singleton pattern is actually considered an anti-pattern and overuse of it should be avoided. It is not necessarily bad and could have some valid use-cases but should be used with caution because it introduces a global state in your application and change to it in one place could affect in the other areas and it could become pretty difficult to debug. The other bad thing about them is it makes your code tightly coupled plus mocking the singleton could be difficult.
+
+**Programmatic Example**
+
+To create a singleton, make the constructor private, disable cloning, disable extension and create a static variable to house the instance
+
+```c#
+public sealed class President
+{
+    private static President instance;
+
+    private President()
+    {
+        // Hide the constructor
+    }
+
+    public static President GetInstance()
+    {
+         if(instance == null)
+            {
+                instance = new President();
+            }
+            return instance;
+    }
+}
+```
+
+Then in order to use
+
+```c#
+President p1 = President.GetInstance();
+President p2 = President.GetInstance();
+
+System.Console.WriteLine(p1 == p2); // true
+```
+
+# Structural Design Patterns
+
+In plain words
+
+> Structural patterns are mostly concerned with object composition or in other words how the entities can use each other. Or yet another explanation would be, they help in answering "How to build a software component?"
+
+Wikipedia says
+
+> In software engineering, structural design patterns are design patterns that ease the design by identifying a simple way to realize relationships between entities.
+
+- [Adapter](#-adapter)
+- [Bridge](#-bridge)
+- [Composite](#-composite)
+- [Decorator](#-decorator)
+- [Facade](#-facade)
+- [Flyweight](#-flyweight)
+- [Proxy](#-proxy)
+
+## 🔌 Adapter
+
+Real world example
+
+> Consider that you have some pictures in your memory card and you need to transfer them to your computer. In order to transfer them you need some kind of adapter that is compatible with your computer ports so that you can attach memory card to your computer. In this case card reader is an adapter.
+> Another example would be the famous power adapter; a three legged plug can't be connected to a two pronged outlet, it needs to use a power adapter that makes it compatible with the two pronged outlet.
+> Yet another example would be a translator translating words spoken by one person to another
+
+In plain words
+
+> Adapter pattern lets you wrap an otherwise incompatible object in an adapter to make it compatible with another class.
+
+Wikipedia says
+
+> In software engineering, the adapter pattern is a software design pattern that allows the interface of an existing class to be used as another interface. It is often used to make existing classes work with others without modifying their source code.
+
+**Programmatic Example**
+
+Consider a game where there is a hunter and he hunts lions.
+
+First we have an interface `Lion` that all types of lions have to implement
+
+```c#
+interface Lion {
+    void Roar();
+}
+
+class AfricanLion : Lion {
+    public void Roar() => System.Console.WriteLine("Roar");
+}
+
+class AsianLion : Lion {
+    public void Roar() => System.Console.WriteLine("Roar");
+}
+```
+
+And hunter expects any implementation of `Lion` interface to hunt.
+
+```c#
+class Hunter {
+    public void Hunt(Lion lion) {
+        lion.Roar();
+    }
+}
+```
+
+Now let's say we have to add a `WildDog` in our game so that hunter can hunt that also. But we can't do that directly because dog has a different interface. To make it compatible for our hunter, we will have to create an adapter that is compatible
+
+```c#
+// This needs to be added to the game
+class WildDog {
+    public void Bark() => System.Console.WriteLine("Bark");
+}
+
+// Adapter around wild dog to make it compatible with our game
+class WildDogAdapter : Lion {
+    protected WildDog dog;
+
+    public WildDogAdapter(WildDog dog) {
+        this.dog = dog;
+    }
+
+    public void Roar() => this.dog.Bark();
+}
+```
+
+And now the `WildDog` can be used in our game using `WildDogAdapter`.
+
+```c#
+WildDog wildDog = new WildDog();
+WildDogAdapter wildDogAdapter = new WildDogAdapter(wildDog);
+
+Hunter hunter = new Hunter();
+hunter.Hunt(wildDogAdapter);
+```
+
+## 🚡 Bridge
+
+Real world example
+
+> Consider you have a website with different pages and you are supposed to allow the user to change the theme. What would you do? Create multiple copies of each of the pages for each of the themes or would you just create separate theme and load them based on the user's preferences? Bridge pattern allows you to do the second i.e.
+
+![With and without the bridge pattern](https://cloud.githubusercontent.com/assets/11269635/23065293/33b7aea0-f515-11e6-983f-98823c9845ee.png)
+
+In Plain Words
+
+> Bridge pattern is about preferring composition over inheritance. Implementation details are pushed from a hierarchy to another object with a separate hierarchy.
+
+Wikipedia says
+
+> The bridge pattern is a design pattern used in software engineering that is meant to "decouple an abstraction from its implementation so that the two can vary independently"
+
+**Programmatic Example**
+
+Translating our WebPage example from above. Here we have the `WebPage` hierarchy
+
+```c#
+interface WebPage {
+    string GetContent();
+}
+
+class About : WebPage {
+    protected Theme theme;
+
+    public About(Theme theme) {
+        this.theme = theme;
+    }
+
+    public string GetContent() => "About page in " + this.theme.Color;
+}
+
+class Careers : WebPage {
+    protected Theme theme;
+
+    public Careers(Theme theme) {
+        this.theme = theme;
+    }
+
+    public string GetContent() => "Careers page in " + this.theme.Color;
+}
+```
+
+And the separate theme hierarchy
+
+```c#
+interface Theme {
+    string Color { get; }
+}
+
+class DarkTheme : Theme {
+    public string Color => "Dark Black";
+}
+
+class LightTheme : Theme {
+    public string Color => "Off white";
+}
+
+class AquaTheme : Theme {
+    public string Color => "Light blue";
+}
+```
+
+And both the hierarchies
+
+```c#
+DarkTheme darkTheme = new DarkTheme();
+
+About about = new About(darkTheme);
+Careers careers = new Careers(darkTheme);
+
+System.Console.WriteLine(about.GetContent()); // "About page in Dark Black";
+System.Console.WriteLine(careers.GetContent()); // "Careers page in Dark Black";
+```
+
+## 🌿 Composite
+
+Real world example
+
+> Every organization is composed of employees. Each of the employees has the same features i.e. has a salary, has some responsibilities, may or may not report to someone, may or may not have some subordinates etc.
+
+In plain words
+
+> Composite pattern lets clients treat the individual objects in a uniform manner.
+
+Wikipedia says
+
+> In software engineering, the composite pattern is a partitioning design pattern. The composite pattern describes that a group of objects is to be treated in the same way as a single instance of an object. The intent of a composite is to "compose" objects into tree structures to represent part-whole hierarchies. Implementing the composite pattern lets clients treat individual objects and compositions uniformly.
+
+**Programmatic Example**
+
+Taking our employees example from above. Here we have different employee types
+
+```c#
+interface Employee {
+    string GetName();
+    void SetSalary(float salary);
+    float GetSalary();
+    string[] GetRoles();
+}
+
+class Developer : Employee {
+    protected float salary;
+    protected string name;
+    protected string[] roles = { };
+
+    public Developer(string name, float salary) {
+        this.name = name;
+        this.salary = salary;
+    }
+
+    public string GetName() {
+        return this.name;
+    }
+
+    public void SetSalary(float salary) {
+        this.salary = salary;
+    }
+
+    public float GetSalary() {
+        return this.salary;
+    }
+
+    public string[] GetRoles() {
+        return this.roles;
+    }
+}
+
+class Designer : Employee {
+    protected float salary;
+    protected string name;
+    protected string[] roles = { };
+
+    public Designer(string name, float salary) {
+        this.name = name;
+        this.salary = salary;
+    }
+
+    public string GetName() {
+        return this.name;
+    }
+
+    public void SetSalary(float salary) {
+        this.salary = salary;
+    }
+
+    public float GetSalary() {
+        return this.salary;
+    }
+
+    public string[] GetRoles() {
+        return this.roles;
+    }
+}
+```
+
+Then we have an organization which consists of several different types of employees
+
+```c#
+class Organization {
+    protected List<Employee> employees = new List<Employee>();
+
+    public void AddEmployee(Employee employee) {
+        this.employees.Add(employee);
+    }
+
+    public float GetNetSalaries() {
+        float netSalary = 0;
+
+        foreach(Employee employee in employees) {
+            netSalary += employee.GetSalary();
+        }
+
+        return netSalary;
+    }
+}
+```
+
+And then it can be used as
+
+```c#
+// Prepare the employees
+Developer john = new Developer("John Doe", 12000);
+Designer jane = new Designer("Jane Doe", 15000);
+
+// Add them to organization
+Organization organization = new Organization();
+organization.AddEmployee(john);
+organization.AddEmployee(jane);
+
+System.Console.WriteLine("Net salaries: " + organization.GetNetSalaries()); // Net Salaries: 27000
+```
+
+## ☕ Decorator
+
+Real world example
+
+> Imagine you run a car service shop offering multiple services. Now how do you calculate the bill to be charged? You pick one service and dynamically keep adding to it the prices for the provided services till you get the final cost. Here each type of service is a decorator.
+
+In plain words
+
+> Decorator pattern lets you dynamically change the behavior of an object at run time by wrapping them in an object of a decorator class.
+
+Wikipedia says
+
+> In object-oriented programming, the decorator pattern is a design pattern that allows behavior to be added to an individual object, either statically or dynamically, without affecting the behavior of other objects from the same class. The decorator pattern is often useful for adhering to the Single Responsibility Principle, as it allows functionality to be divided between classes with unique areas of concern.
+
+**Programmatic Example**
+
+Lets take coffee for example. First of all we have a simple coffee implementing the coffee interface
+
+```c#
+interface Coffee {
+    int GetCost();
+    string GetDescription();
+}
+
+class SimpleCoffee : Coffee {
+    public int GetCost() => 10;
+
+    public string GetDescription() => "Simple coffee";
+}
+```
+
+We want to make the code extensible to allow options to modify it if required. Lets make some add-ons(decorators)
+
+```c#
+class MilkCoffee : Coffee {
+    protected Coffee coffee;
+
+    public MilkCoffee(Coffee coffee) {
+        this.coffee = coffee;
+    }
+
+    public int GetCost() => this.coffee.GetCost() + 2;
+
+    public string GetDescription() => this.coffee.GetDescription() + ", milk";
+}
+
+class WhipCoffee : Coffee {
+    protected Coffee coffee;
+
+    public WhipCoffee(Coffee coffee) {
+        this.coffee = coffee;
+    }
+
+    public int GetCost() => this.coffee.GetCost() + 5;
+
+    public string GetDescription() => this.coffee.GetDescription() + ", whip";
+}
+
+class VanillaCoffee : Coffee {
+    protected Coffee coffee;
+
+    public VanillaCoffee(Coffee coffee) {
+        this.coffee = coffee;
+    }
+
+    public int GetCost() => this.coffee.GetCost() + 3;
+
+    public string GetDescription() => this.coffee.GetDescription() + ", vanilla";
+}
+```
+
+Lets make a coffee now
+
+```c#
+SimpleCoffee simpleCoffee = new SimpleCoffee();
+System.Console.WriteLine(simpleCoffee.GetCost()); // 10
+System.Console.WriteLine(simpleCoffee.GetDescription()); // Simple Coffee
+
+MilkCoffee milkCoffee = new MilkCoffee(simpleCoffee);
+System.Console.WriteLine(milkCoffee.GetCost()); // 12
+System.Console.WriteLine(milkCoffee.GetDescription()); // Simple Coffee, milk
+
+WhipCoffee whipCoffee = new WhipCoffee(simpleCoffee);
+System.Console.WriteLine(whipCoffee.GetCost()); // 17
+System.Console.WriteLine(whipCoffee.GetDescription()); // Simple Coffee, milk, whip
+
+VanillaCoffee vanillaCoffee = new VanillaCoffee(simpleCoffee);
+System.Console.WriteLine(vanillaCoffee.GetCost()); // 20
+System.Console.WriteLine(vanillaCoffee.GetDescription()); // Simple Coffee, milk, whip, vanilla
+```
+
+## 📦 Facade
+
+Real world example
+
+> How do you turn on the computer? "Hit the power button" you say! That is what you believe because you are using a simple interface that computer provides on the outside, internally it has to do a lot of stuff to make it happen. This simple interface to the complex subsystem is a facade.
+
+In plain words
+
+> Facade pattern provides a simplified interface to a complex subsystem.
+
+Wikipedia says
+
+> A facade is an object that provides a simplified interface to a larger body of code, such as a class library.
+
+**Programmatic Example**
+
+Taking our computer example from above. Here we have the computer class
+
+```c#
+class Computer {
+    public string GetElectricShock() => "Ouch!";
+
+    public string MakeSound() => "Beep beep!";
+
+    public string ShowLoadingScreen() => "Loading..";
+
+    public string Bam() => "Ready to be used!";
+
+    public string CloseEverything() => "Bup bup bup buzzzz!";
+
+    public string Sooth() => "Zzzzz";
+
+    public string PullCurrent() => "Haaah!";
+}
+```
+
+Here we have the facade
+
+```c#
+class ComputerFacade {
+    protected Computer computer;
+
+    public ComputerFacade(Computer computer) {
+        this.computer = computer;
+    }
+
+    public void TurnOn() {
+        this.computer.GetElectricShock();
+        this.computer.MakeSound();
+        this.computer.ShowLoadingScreen();
+        this.computer.Bam();
+    }
+
+    public void TurnOff() {
+        this.computer.CloseEverything();
+        this.computer.PullCurrent();
+        this.computer.Sooth();
+    }
+}
+```
+
+Now to use the facade
+
+```c#
+ComputerFacade computer = new ComputerFacade(new Computer());
+computer.TurnOn(); // Ouch! Beep beep! Loading.. Ready to be used!
+computer.TurnOff(); // Bup bup buzzz! Haah! Zzzzz
+```
+
+## 🍃 Flyweight
+
+Real world example
+
+> Did you ever have fresh tea from some stall? They often make more than one cup that you demanded and save the rest for any other customer so to save the resources e.g. gas etc. Flyweight pattern is all about that i.e. sharing.
+
+In plain words
+
+> It is used to minimize memory usage or computational expenses by sharing as much as possible with similar objects.
+
+Wikipedia says
+
+> In computer programming, flyweight is a software design pattern. A flyweight is an object that minimizes memory use by sharing as much data as possible with other similar objects; it is a way to use objects in large numbers when a simple repeated representation would use an unacceptable amount of memory.
+
+**Programmatic example**
+
+Translating our tea example from above. First of all we have tea types and tea maker
+
+```c#
+// Anything that will be cached is flyweight.
+// Types of tea here will be flyweights.
+class KarakTea { }
+
+// Acts as a factory and saves the tea
+class TeaMaker {
+    protected Dictionary<string, KarakTea> availableTea = new Dictionary<string, KarakTea>();
+
+    public KarakTea Make(string preference) {
+        if(!this.availableTea.TryGetValue(preference, out KarakTea tea)) {
+            this.availableTea.Add(preference, new KarakTea());
+        }
+
+        return this.availableTea[preference];
+    }
+}
+```
+
+Then we have the `TeaShop` which takes orders and serves them
+
+```c#
+class TeaShop {
+    protected Dictionary<int, KarakTea> orders = new Dictionary<int, KarakTea>();
+    protected TeaMaker teaMaker;
+
+    public TeaShop(TeaMaker teaMaker) {
+        this.teaMaker = teaMaker;
+    }
+
+    public void TakeOrder(string teaType, int table) {
+        this.orders.Add(table, this.teaMaker.Make(teaType));
+    }
+
+    public void Serve() {
+        foreach(var order in this.orders) {
+            System.Console.WriteLine("Serving tea to table# " + order.Key);
+        }
+    }
+}
+```
+
+And it can be used as below
+
+```c#
+TeaMaker teaMaker = new TeaMaker();
+TeaShop shop = new TeaShop(teaMaker);
+
+shop.TakeOrder("less sugar", 1);
+shop.TakeOrder("more milk", 2);
+shop.TakeOrder("without sugar", 5);
+
+shop.Serve();
+// Serving tea to table# 1
+// Serving tea to table# 2
+// Serving tea to table# 5
+```
+
+## 🎱 Proxy
+
+Real world example
+
+> Have you ever used an access card to go through a door? There are multiple options to open that door i.e. it can be opened either using access card or by pressing a button that bypasses the security. The door's main functionality is to open but there is a proxy added on top of it to add some functionality. Let me better explain it using the code example below.
+
+In plain words
+
+> Using the proxy pattern, a class represents the functionality of another class.
+
+Wikipedia says
+
+> A proxy, in its most general form, is a class functioning as an interface to something else. A proxy is a wrapper or agent object that is being called by the client to access the real serving object behind the scenes. Use of the proxy can simply be forwarding to the real object, or can provide additional logic. In the proxy extra functionality can be provided, for example caching when operations on the real object are resource intensive, or checking preconditions before operations on the real object are invoked.
+
+**Programmatic Example**
+
+Taking our security door example from above. Firstly we have the door interface and an implementation of door
+
+```c#
+interface Door {
+    string Open();
+    string Close();
+}
+
+class LabDoor : Door {
+    public string Open() => "Opening lab door";
+
+    public string Close() => "Closing the lab door";
+}
+```
+
+Then we have a proxy to secure any doors that we want
+
+```c#
+class SecuredDoor {
+    protected Door door;
+
+    public SecuredDoor(Door door) {
+        this.door = door;
+    }
+
+    public string Open(string password) {
+        return this.Authenticate(password) ? this.door.Open() : "Big no! It ain't possible.";
+    }
+
+    public bool Authenticate(string password) => password == "$ecr@t";
+
+    public string Close() => this.door.Close();
+}
+```
+
+And here is how it can be used
+
+```c#
+SecuredDoor door = new SecuredDoor(new LabDoor());
+System.Console.WriteLine(door.Open("invalid")); // Big no! It ain't possible.
+
+System.Console.WriteLine(door.Open("$ecr@t")); // Opening lab door
+System.Console.WriteLine(door.Close()); // Closing lab door
+```
+
+Yet another example would be some sort of data-mapper implementation. For example, I recently made an ODM(Object Data Mapper) for MongoDB using this pattern where I wrote a proxy around mongo classes while utilizing the magic method `__call()`. All the method calls were proxied to the original mongo class and result retrieved was returned as it is but in case of `find` or `findOne` data was mapped to the required class objects and the object was returned instead of `Cursor`.
+
+# Behavioral Design Patterns
+
+In plain words
+
+> It is concerned with assignment of responsibilities between the objects. What makes them different from structural patterns is they don't just specify the structure but also outline the patterns for message passing/communication between them. Or in other words, they assist in answering "How to run a behavior in software component?"
+
+Wikipedia says
+
+> In software engineering, behavioral design patterns are design patterns that identify common communication patterns between objects and realize these patterns. By doing so, these patterns increase flexibility in carrying out this communication.
+
+- [Chain of Responsibility](#-chain-of-responsibility)
+- [Command](#-command)
+- [Iterator](#-iterator)
+- [Mediator](#-mediator)
+- [Memento](#-memento)
+- [Observer](#-observer)
+- [Visitor](#-visitor)
+- [Strategy](#-strategy)
+- [State](#-state)
+- [Template Method](#-template-method)
+
+## 🔗 Chain of Responsibility
+
+Real world example
+
+> For example, you have three payment methods(`A`, `B` and `C`) setup in your account; each having a different amount in it. `A` has 100 USD, `B` has 300 USD and `C` having 1000 USD and the preference for payments is chosen as `A` then `B` then `C`. You try to purchase something that is worth 210 USD. Using Chain of Responsibility, first of all account `A` will be checked if it can make the purchase, if yes purchase will be made and the chain will be broken. If not, request will move forward to account `B` checking for amount if yes chain will be broken otherwise the request will keep forwarding till it finds the suitable handler. Here `A`, `B` and `C` are links of the chain and the whole phenomenon is Chain of Responsibility.
+
+In plain words
+
+> It helps building a chain of objects. Request enters from one end and keeps going from object to object till it finds the suitable handler.
+
+Wikipedia says
+
+> In object-oriented design, the chain-of-responsibility pattern is a design pattern consisting of a source of command objects and a series of processing objects. Each processing object contains logic that defines the types of command objects that it can handle; the rest are passed to the next processing object in the chain.
+
+**Programmatic Example**
+
+Translating our account example above. First of all we have a base account having the logic for chaining the accounts together and some accounts
+
+```c#
+abstract class Account {
+    private Account successor;
+    protected float balance;
+
+    public void SetNext(Account account) {
+        this.successor = account;
+    }
+
+    public void Pay(float amountToPay) {
+        if(this.CanPay(amountToPay)) {
+            System.Console.WriteLine($"Paid {amountToPay} using {this.GetType()}");
+        } else if(this.successor != null) {
+            System.Console.WriteLine($"Cannot pay using {this.GetType()}, proceeding..");
+            this.successor.Pay(amountToPay);
+        } else {
+            throw new Exception("None of the accounts have enough balance");
+        }
+    }
+
+    public bool CanPay(float amount) => this.balance >= amount;
+}
+
+class Bank : Account {
+    public Bank(float balance) {
+        this.balance = balance;
+    }
+}
+
+class Paypal : Account {
+    public Paypal(float balance) {
+        this.balance = balance;
+    }
+}
+
+class Bitcoin : Account {
+    public Bitcoin(float balance) {
+        this.balance = balance;
+    }
+}
+```
+
+Now let's prepare the chain using the links defined above(i.e. Bank, Paypal, Bitcoin)
+
+```c#
+// Let's prepare a chain like below
+//      $bank->$paypal->$bitcoin
+//
+// First priority bank
+//      If bank can't pay then paypal
+//      If paypal can't pay then bit coin
+
+Bank bank = new Bank(100); // Bank with balance 100
+Paypal paypal = new Paypal(200); // Paypal with balance 200
+Bitcoin bitcoin = new Bitcoin(300); // Bitcoin with balance 300
+
+bank.SetNext(paypal);
+paypal.SetNext(bitcoin);
+
+// Let's try to pay using the first priority i.e. bank
+bank.Pay(259);
+
+// Output will be
+// ==============
+// Cannot pay using bank. Proceeding ..
+// Cannot pay using paypal. Proceeding ..:
+// Paid 259 using Bitcoin!
+```
+
+## 👮 Command
+
+Real world example
+
+> A generic example would be you ordering food at a restaurant. You(i.e. `Client`) ask the waiter(i.e. `Invoker`) to bring some food(i.e. `Command`) and waiter simply forwards the request to Chef(i.e. `Receiver`) who has the knowledge of what and how to cook.
+> Another example would be you(i.e. `Client`) switching on(i.e. `Command`) the television(i.e. `Receiver`) using a remote control(`Invoker`).
+
+In plain words
+
+> Allows you to encapsulate actions in objects. The key idea behind this pattern is to provide the means to decouple client from receiver.
+
+Wikipedia says
+
+> In object-oriented programming, the command pattern is a behavioral design pattern in which an object is used to encapsulate all information needed to perform an action or trigger an event at a later time. This information includes the method name, the object that owns the method and values for the method parameters.
+
+**Programmatic Example**
+
+First of all we have the receiver that has the implementation of every action that could be performed
+
+```c#
+// Receiver
+class Bulb
+{
+    public string TurnOn() => "Bulb has been lit";
+
+    public string TurnOff() => "Darkness!";
+}
+```
+
+then we have an interface that each of the commands are going to implement and then we have a set of commands
+
+```c#
+interface Command
+{
+    string Execute();
+    string Undo();
+    string Redo();
+}
+
+class TurnOn : Command {
+    protected Bulb bulb;
+
+    public TurnOn(Bulb bulb) {
+        this.bulb = bulb;
+    }
+
+    public string Execute() => this.bulb.TurnOn();
+
+    public string Undo() => this.bulb.TurnOff();
+
+    public string Redo() => this.Execute();
+}
+
+class TurnOff : Command {
+    protected Bulb bulb;
+
+    public TurnOff(Bulb bulb) {
+        this.bulb = bulb;
+    }
+
+    public string Execute() => this.bulb.TurnOff();
+
+    public string Undo() => this.bulb.TurnOn();
+
+    public string Redo() => this.Execute();
+}
+```
+
+Then we have an `Invoker` with whom the client will interact to process any commands
+
+```c#
+// Invoker
+class RemoteControl
+{
+    public void Submit(Command command) => System.Console.WriteLine(command.Execute());
+}
+```
+
+Finally let's see how we can use it in our client
+
+```c#
+Bulb bulb = new Bulb();
+
+TurnOn turnOn = new TurnOn(bulb);
+TurnOff turnOff = new TurnOff(bulb);
+
+RemoteControl remote = new RemoteControl();
+remote.submit(turnOn); // Bulb has been lit!
+remote.submit(turnOff); // Darkness!
+```
+
+Command pattern can also be used to implement a transaction based system. Where you keep maintaining the history of commands as soon as you execute them. If the final command is successfully executed, all good otherwise just iterate through the history and keep executing the `undo` on all the executed commands.
+
+## ➿ Iterator
+
+Real world example
+
+> An old radio set will be a good example of iterator, where user could start at some channel and then use next or previous buttons to go through the respective channels. Or take an example of MP3 player or a TV set where you could press the next and previous buttons to go through the consecutive channels or in other words they all provide an interface to iterate through the respective channels, songs or radio stations.
+
+In plain words
+
+> It presents a way to access the elements of an object without exposing the underlying presentation.
+
+Wikipedia says
+
+> In object-oriented programming, the iterator pattern is a design pattern in which an iterator is used to traverse a container and access the container's elements. The iterator pattern decouples algorithms from containers; in some cases, algorithms are necessarily container-specific and thus cannot be decoupled.
+
+**Programmatic example**
+
+Translating our radio stations example from above. First of all we have `RadioStation`
+
+```c#
+class RadioStation {
+    protected double frequency;
+
+    public RadioStation(double frequency) {
+        this.frequency = frequency;
+    }
+
+    public double GetFrequency() => this.frequency;
+}
+```
+
+Then we have our iterator
+
+```c#
+class StationList : IEnumerable<RadioStation> {
+    protected List<RadioStation> stations = new List<RadioStation>();
+
+    public void AddStation(RadioStation station) {
+        this.stations.Add(station);
+    }
+
+    public void RemoveStation(RadioStation toRemove) {
+        this.stations = this.stations.Where(s => s.GetFrequency() != toRemove.GetFrequency()).ToList();
+    }
+
+    public IEnumerator<RadioStation> GetEnumerator() {
+        foreach(RadioStation radio in stations) {
+            yield return radio;
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => stations.GetEnumerator();
+}
+```
+
+And then it can be used as
+
+```c#
+StationList stationList = new StationList();
+
+stationList.AddStation(new RadioStation(89));
+stationList.AddStation(new RadioStation(101));
+stationList.AddStation(new RadioStation(102));
+stationList.AddStation(new RadioStation(103.2));
+
+    foreach(RadioStation radio in stationList) {
+        System.Console.WriteLine(radio.GetFrequency());
+    }
+
+stationList.RemoveStation(new RadioStation(89)); // Will remove station 89
+```
+
+# 👽 Mediator
+
+Real world example
+
+> A general example would be when you talk to someone on your mobile phone, there is a network provider sitting between you and them and your conversation goes through it instead of being directly sent. In this case network provider is mediator.
+
+In plain words
+
+> Mediator pattern adds a third party object(called mediator) to control the interaction between two objects(called colleagues). It helps reduce the coupling between the classes communicating with each other. Because now they don't need to have the knowledge of each other's implementation.
+
+Wikipedia says
+
+> In software engineering, the mediator pattern defines an object that encapsulates how a set of objects interact. This pattern is considered to be a behavioral pattern due to the way it can alter the program's running behavior.
+
+**Programmatic Example**
+
+Here is the simplest example of a chat room(i.e. mediator) with users(i.e. colleagues) sending messages to each other.
+
+First of all, we have the mediator i.e. the chat room
+
+```c#
+interface ChatRoomMediator {
+    void ShowMessage(User user, string message);
+}
+
+// Mediator
+class ChatRoom : ChatRoomMediator {
+    public void ShowMessage(User user, string message) {
+        DateTime time = new DateTime();
+        string sender = user.GetName();
+
+        System.Console.WriteLine($"{time} [ {sender} ]: {message}");
+    }
+}
+```
+
+Then we have our users i.e. colleagues
+
+```c#
+class User {
+    protected string name;
+    protected ChatRoomMediator chatMediator;
+
+    public User(string name, ChatRoomMediator chatMediator) {
+        this.name = name;
+        this.chatMediator = chatMediator;
+    }
+
+    public string GetName() => this.name;
+
+    public void Send(string message) {
+        this.chatMediator.ShowMessage(this, message);
+    }
+}
+```
+
+And the usage
+
+```c#
+ChatRoom mediator = new ChatRoom();
+
+User john = new User("John Doe", mediator);
+User jane = new User("Jane Doe", mediator);
+
+john.Send("Hi there!");
+jane.Send("Hey!");
+
+// Output will be
+// Feb 14, 10:58 [John]: Hi there!
+// Feb 14, 10:58 [Jane]: Hey!
+```
+
+## 💾 Memento
+
+Real world example
+
+> Take the example of calculator(i.e. originator), where whenever you perform some calculation the last calculation is saved in memory(i.e. memento) so that you can get back to it and maybe get it restored using some action buttons(i.e. caretaker).
+
+In plain words
+
+> Memento pattern is about capturing and storing the current state of an object in a manner that it can be restored later on in a smooth manner.
+
+Wikipedia says
+
+> The memento pattern is a software design pattern that provides the ability to restore an object to its previous state(undo via rollback).
+
+Usually useful when you need to provide some sort of undo functionality.
+
+**Programmatic Example**
+
+Lets take an example of text editor which keeps saving the state from time to time and that you can restore if you want.
+
+First of all we have our memento object that will be able to hold the editor state
+
+```c#
+class EditorMemento {
+    protected string content;
+
+    public EditorMemento(string content) {
+        this.content = content;
+    }
+
+    public string getContent() => this.content;
+}
+```
+
+Then we have our editor i.e. originator that is going to use memento object
+
+```c#
+class Editor {
+    protected string content;
+
+    public void Type(string words) {
+        this.content = this.content + " " + words;
+    }
+
+    public string GetContent() => this.content;
+
+    public EditorMemento Save() {
+        return new EditorMemento(this.content);
+    }
+
+    public string Restore(EditorMemento memento) => this.content = memento.getContent();
+}
+```
+
+And then it can be used as
+
+```c#
+Editor editor = new Editor();
+
+// Type some stuff
+editor.Type("This is the first sentence.");
+editor.Type("This is second.");
+
+// Save the state to restore to : This is the first sentence. This is second.
+EditorMemento saved = editor.Save();
+
+// Type some more
+editor.Type("And this is third.");
+
+// Output: Content before Saving
+System.Console.WriteLine(editor.GetContent()); // This is the first sentence. This is second. And this is third.
+
+// Restoring to last saved state
+editor.Restore(saved);
+
+System.Console.WriteLine(editor.GetContent()); // This is the first sentence. This is second.
+```
+
+## 😎 Observer
+
+Real world example
+
+> A good example would be the job seekers where they subscribe to some job posting site and they are notified whenever there is a matching job opportunity.
+
+In plain words
+
+> Defines a dependency between objects so that whenever an object changes its state, all its dependents are notified.
+
+Wikipedia says
+
+> The observer pattern is a software design pattern in which an object, called the subject, maintains a list of its dependents, called observers, and notifies them automatically of any state changes, usually by calling one of their methods.
+
+**Programmatic example**
+
+Translating our example from above. First of all we have job seekers that need to be notified for a job posting
+
+```c#
+class JobPost {
+    public string title;
+
+    public JobPost(string title) {
+        this.title = title;
+    }
+
+    public string getTitle() => this.title;
+}
+
+class JobSeeker : IObserver<JobPost> {
+    protected string name;
+
+    public JobSeeker(string name) {
+        this.name = name;
+    }
+
+    public void OnCompleted() {
+        throw new NotImplementedException();
+    }
+
+    public void OnError(Exception error) {
+        throw new NotImplementedException();
+    }
+
+    public void OnNext(JobPost value) {
+        Console.WriteLine("Hi {0} ! New job posted: {1}", name, value.title);
+    }
+}
+
+```
+
+Then we have our job postings to which the job seekers will subscribe
+
+```c#
+class JobPostings : IObservable<JobPost> {
+    private List<IObserver<JobPost>> mObservers;
+    private List<JobPost> mJobPostings;
+
+    public JobPostings() {
+        mObservers = new List<IObserver<JobPost>>();
+        mJobPostings = new List<JobPost>();
+    }
+
+    public IDisposable Subscribe(IObserver<JobPost> observer) {
+        // Check whether observer is already registered. If not, add it
+        if(!mObservers.Contains(observer)) {
+            mObservers.Add(observer);
+        }
+        return new Unsubscriber<JobPost>(mObservers, observer);
+    }
+
+    private void Notify(JobPost jobPost) {
+        foreach(var observer in mObservers) {
+            observer.OnNext(jobPost);
+        }
+    }
+
+    public void AddJob(JobPost jobPost) {
+        mJobPostings.Add(jobPost);
+        Notify(jobPost);
+    }
+
+}
+
+internal class Unsubscriber<JobPost> : IDisposable {
+    private List<IObserver<JobPost>> mObservers;
+    private IObserver<JobPost> mObserver;
+
+    internal Unsubscriber(List<IObserver<JobPost>> observers, IObserver<JobPost> observer) {
+        this.mObservers = observers;
+        this.mObserver = observer;
+    }
+
+    public void Dispose() {
+        if(mObservers.Contains(mObserver))
+            mObservers.Remove(mObserver);
+    }
+}
+```
+
+Then it can be used as
+
+```c#
+//Create Subscribers
+JobSeeker johnDoe = new JobSeeker("John Doe");
+JobSeeker janeDoe = new JobSeeker("Jane Doe");
+
+//Create publisher and attch subscribers
+var jobPostings = new JobPostings();
+jobPostings.Subscribe(johnDoe);
+jobPostings.Subscribe(janeDoe);
+
+//Add a new job and see if subscribers get notified
+jobPostings.AddJob(new JobPost("Software Engineer"));
+
+//Output
+// Hi John Doe! New job posted: Software Engineer
+// Hi Jane Doe! New job posted: Software Engineer
+```
+
+## 🏃 Visitor
+
+Real world example
+
+> Consider someone visiting Dubai. They just need a way(i.e. visa) to enter Dubai. After arrival, they can come and visit any place in Dubai on their own without having to ask for permission or to do some leg work in order to visit any place here; just let them know of a place and they can visit it. Visitor pattern lets you do just that, it helps you add places to visit so that they can visit as much as they can without having to do any legwork.
+
+In plain words
+
+> Visitor pattern lets you add further operations to objects without having to modify them.
+
+Wikipedia says
+
+> In object-oriented programming and software engineering, the visitor design pattern is a way of separating an algorithm from an object structure on which it operates. A practical result of this separation is the ability to add new operations to existing object structures without modifying those structures. It is one way to follow the open/closed principle.
+
+**Programmatic example**
+
+Let's take an example of a zoo simulation where we have several different kinds of animals and we have to make them Sound. Let's translate this using visitor pattern
+
+```c#
+
+// Visitee
+interface Animal {
+    void Accept(AnimalOperation operation);
+}
+
+// Visitor
+interface AnimalOperation {
+    void VisitMonkey(Monkey monkey);
+    void VisitLion(Lion lion);
+    void VisitDolphin(Dolphin dolphin);
+}
+```
+
+Then we have our implementations for the animals
+
+```c#
+class Monkey : Animal {
+    public void Shout() {
+        System.Console.WriteLine("Ooh oo aa aa!");
+    }
+
+    public void Accept(AnimalOperation operation) {
+        operation.VisitMonkey(this);
+    }
+}
+
+class Lion : Animal {
+    public void Roar() => System.Console.WriteLine("Roaaar!");
+
+    public void Accept(AnimalOperation operation) {
+        operation.VisitLion(this);
+    }
+}
+
+class Dolphin : Animal {
+    public void Speak() => System.Console.WriteLine("Tuut tuttu tuutt!");
+
+    public void Accept(AnimalOperation operation) {
+        operation.VisitDolphin(this);
+    }
+}
+```
+
+Let's implement our visitor
+
+```c#
+class Speak : AnimalOperation {
+    public void VisitMonkey(Monkey monkey) {
+        monkey.Shout();
+    }
+
+    public void VisitLion(Lion lion) {
+        lion.Roar();
+    }
+
+    public void VisitDolphin(Dolphin dolphin) {
+        dolphin.Speak();
+    }
+}
+```
+
+And then it can be used as
+
+```c#
+Monkey monkey = new Monkey();
+Lion lion = new Lion();
+Dolphin dolphin = new Dolphin();
+
+Speak speak = new Speak();
+
+monkey.Accept(speak); // Ooh oo aa aa!
+lion.Accept(speak); // Roaaar!
+dolphin.Accept(speak); // Tuut tutt tuutt!
+```
+
+We could have done this simply by having an inheritance hierarchy for the animals but then we would have to modify the animals whenever we would have to add new actions to animals. But now we will not have to change them. For example, let's say we are asked to add the jump behavior to the animals, we can simply add that by creating a new visitor i.e.
+
+```c#
+class Jump : AnimalOperation {
+    public void VisitMonkey(Monkey monkey) {
+        System.Console.WriteLine("Jumped 20 feet high! on to the tree!");
+    }
+
+    public void VisitLion(Lion lion) {
+        System.Console.WriteLine("Jumped 7 feet! Back on the ground!");
+    }
+
+    public void VisitDolphin(Dolphin dolphin) {
+        System.Console.WriteLine("Walked on water a little and disappeared");
+    }
+}
+```
+
+And for the usage
+
+```c#
+Monkey monkey = new Monkey();
+Lion lion = new Lion();
+Dolphin dolphin = new Dolphin();
+
+Speak speak = new Speak();
+Jump jump = new Jump();
+
+monkey.Accept(speak); // Ooh oo aa aa!
+monkey.Accept(jump); // Jumped 20 feet high! on to the tree!
+
+lion.Accept(speak); // Roaaar!
+lion.Accept(jump); // Jumped 7 feet! Back on the ground!
+
+dolphin.Accept(speak); // Tuut tutt tuutt!
+dolphin.Accept(jump); // Walked on water a little and disappeared
+```
+
+## 💡 Strategy
+
+Real world example
+
+> Consider the example of sorting, we implemented bubble sort but the data started to grow and bubble sort started getting very slow. In order to tackle this we implemented Quick sort. But now although the quick sort algorithm was doing better for large datasets, it was very slow for smaller datasets. In order to handle this we implemented a strategy where for small datasets, bubble sort will be used and for larger, quick sort.
+
+In plain words
+
+> Strategy pattern allows you to switch the algorithm or strategy based upon the situation.
+
+Wikipedia says
+
+> In computer programming, the strategy pattern(also known as the policy pattern) is a behavioural software design pattern that enables an algorithm's behavior to be selected at runtime.
+
+**Programmatic example**
+
+Translating our example from above. First of all we have our strategy interface and different strategy implementations
+
+```c#
+interface SortStrategy {
+    int[] Sort(int[] dataset);
+}
+
+class BubbleSortStrategy : SortStrategy {
+    public int[] Sort(int[] dataset) {
+        System.Console.WriteLine("Sorting using bubble sort");
+
+        // Do sorting
+        return dataset;
+    }
+}
+
+class QuickSortStrategy : SortStrategy {
+    public int[] Sort(int[] dataset) {
+        System.Console.WriteLine("Sorting using quick sort");
+
+        // Do sorting
+        return dataset;
+    }
+}
+```
+
+And then we have our client that is going to use any strategy
+
+```c#
+class Sorter {
+    protected SortStrategy sorter;
+
+    public Sorter(SortStrategy sorter) {
+        this.sorter = sorter;
+    }
+
+    public int[] Sort(int[] dataset) => this.sorter.Sort(dataset);
+}
+```
+
+And it can be used as
+
+```c#
+int[] dataset = { 1, 5, 4, 3, 2, 8 };
+
+Sorter sorter = new Sorter(new BubbleSortStrategy());
+sorter.Sort(dataset); // Output : Sorting using bubble sort
+
+sorter = new Sorter(new QuickSortStrategy());
+sorter.Sort(dataset); // Output : Sorting using quick sort
+```
+
+## 💢 State
+
+Real world example
+
+> Imagine you are using some drawing application, you choose the paint brush to draw. Now the brush changes its behavior based on the selected color i.e. if you have chosen red color it will draw in red, if blue then it will be in blue etc.
+
+In plain words
+
+> It lets you change the behavior of a class when the state changes.
+
+Wikipedia says
+
+> The state pattern is a behavioral software design pattern that implements a state machine in an object-oriented way. With the state pattern, a state machine is implemented by implementing each individual state as a derived class of the state pattern interface, and implementing state transitions by invoking methods defined by the pattern's superclass.
+> The state pattern can be interpreted as a strategy pattern which is able to switch the current strategy through invocations of methods defined in the pattern's interface.
+
+**Programmatic example**
+
+Let's take an example of text editor, it lets you change the state of text that is typed i.e. if you have selected bold, it starts writing in bold, if italic then in italics etc.
+
+First of all we have our state interface and some state implementations
+
+```c#
+interface WritingState {
+    void write(string words);
+}
+
+class UpperCase : WritingState {
+    public void write(string words) => System.Console.WriteLine(words.ToUpper());
+}
+
+class LowerCase : WritingState {
+    public void write(string words) => System.Console.WriteLine(words.ToLower());
+}
+
+class DefaultText : WritingState {
+    public void write(string words) => System.Console.WriteLine(words);
+}
+```
+
+Then we have our editor
+
+```c#
+class TextEditor {
+    protected WritingState state;
+
+    public TextEditor(WritingState state) {
+        this.state = state;
+    }
+
+    public void setState(WritingState state) {
+        this.state = state;
+    }
+
+    public void type(string words) {
+        this.state.write(words);
+    }
+}
+```
+
+And then it can be used as
+
+```c#
+TextEditor editor = new TextEditor(new DefaultText());
+
+editor.type("First line");
+
+editor.setState(new UpperCase());
+
+editor.type("Second line");
+editor.type("Third line");
+
+editor.setState(new LowerCase());
+
+editor.type("Fourth line");
+editor.type("Fifth line");
+
+// Output:
+// First line
+// SECOND LINE
+// THIRD LINE
+// fourth line
+// fifth line
+```
+
+## 📒 Template Method
+
+Real world example
+
+> Suppose we are getting some house built. The steps for building might look like
+>
+> - Prepare the base of house
+> - Build the walls
+> - Add roof
+> - Add other floors
+
+> The order of these steps could never be changed i.e. you can't build the roof before building the walls etc but each of the steps could be modified for example walls can be made of wood or polyester or stone.
+
+In plain words
+
+> Template method defines the skeleton of how a certain algorithm could be performed, but defers the implementation of those steps to the children classes.
+
+Wikipedia says
+
+> In software engineering, the template method pattern is a behavioral design pattern that defines the program skeleton of an algorithm in an operation, deferring some steps to subclasses. It lets one redefine certain steps of an algorithm without changing the algorithm's structure.
+
+**Programmatic Example**
+
+Imagine we have a build tool that helps us test, lint, build, generate build reports(i.e. code coverage reports, linting report etc) and deploy our app on the test server.
+
+First of all we have our base class that specifies the skeleton for the build algorithm
+
+```c#
+abstract class Builder {
+
+    // Template method
+    public void Build() {
+        this.Test();
+        this.Lint();
+        this.Assemble();
+        this.Deploy();
+    }
+
+    abstract public void Test();
+    abstract public void Lint();
+    abstract public void Assemble();
+    abstract public void Deploy();
+}
+```
+
+Then we can have our implementations
+
+```c#
+class AndroidBuilder : Builder {
+    public override void Test() {
+        System.Console.WriteLine("Running android tests");
+    }
+
+    public override void Lint() {
+        System.Console.WriteLine("Linting the android code");
+    }
+
+    public override void Assemble() {
+        System.Console.WriteLine("Assembling the android build");
+    }
+
+    public override void Deploy() {
+        System.Console.WriteLine("Deploying android build to server");
+    }
+}
+
+class IosBuilder : Builder {
+    public override void Test() {
+        System.Console.WriteLine("Running ios tests");
+    }
+
+    public override void Lint() {
+        System.Console.WriteLine("Linting the ios code");
+    }
+
+    public override void Assemble() {
+        System.Console.WriteLine("Assembling the ios build");
+    }
+
+    public override void Deploy() {
+        System.Console.WriteLine("Deploying ios build to server");
+    }
+}
+```
+
+And then it can be used as
+
+```c#
+AndroidBuilder androidBuilder = new AndroidBuilder();
+androidBuilder.Build();
+
+// Output:
+// Running android tests
+// Linting the android code
+// Assembling the android build
+// Deploying android build to server
+
+IosBuilder iosBuilder = new IosBuilder();
+iosBuilder.Build();
+
+// Output:
+// Running ios tests
+// Linting the ios code
+// Assembling the ios build
+// Deploying ios build to server
+```
+
+## 🚦 Wrap Up Folks
+
+And that about wraps it up. I will continue to improve this, so you might want to watch/star this repository to revisit. Also, I have plans on writing the same about the architectural patterns, stay tuned for it.
+
+## 👬 Contribution
+
+- Report issues
+- Open pull request with improvements
+- Spread the word
+- Reach out with any feedback [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/kamranahmedse.svg?style=social&label=Follow%20%40kamranahmedse)](https://twitter.com/kamranahmedse)
+
+## License
+
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
