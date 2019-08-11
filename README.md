@@ -1625,56 +1625,59 @@ Here is the simplest example of a chat room(i.e. mediator) with users(i.e. colle
 
 First of all, we have the mediator i.e. the chat room
 
-```c#
-interface ChatRoomMediator {
-    void ShowMessage(User user, string message);
+```java
+public interface ChatRoomMediator {
+    void showMessage(User user, String message);
 }
 
 // Mediator
-class ChatRoom : ChatRoomMediator {
-    public void ShowMessage(User user, string message) {
-        DateTime time = new DateTime();
-        string sender = user.GetName();
+public class ChatRoom implements ChatRoomMediator {
+    @Override
+    public void showMessage(User user, String message) {
+        Date time = new Date();
+        String sender = user.getName();
 
-        System.Console.WriteLine($"{time} [ {sender} ]: {message}");
+        System.out.println(String.format("%s [ %s} ]: %s", time, sender, message));
     }
 }
 ```
 
 Then we have our users i.e. colleagues
 
-```c#
-class User {
-    protected string name;
+```java
+public class User {
+    protected String name;
     protected ChatRoomMediator chatMediator;
 
-    public User(string name, ChatRoomMediator chatMediator) {
+    public User(String name, ChatRoomMediator chatMediator) {
         this.name = name;
         this.chatMediator = chatMediator;
     }
 
-    public string GetName() => this.name;
+    public String getName() {
+        return this.name;
+    }
 
-    public void Send(string message) {
-        this.chatMediator.ShowMessage(this, message);
+    public void send(String message) {
+        this.chatMediator.showMessage(this, message);
     }
 }
 ```
 
 And the usage
 
-```c#
-ChatRoom mediator = new ChatRoom();
+```java
+ ChatRoom mediator = new ChatRoom();
 
 User john = new User("John Doe", mediator);
 User jane = new User("Jane Doe", mediator);
 
-john.Send("Hi there!");
-jane.Send("Hey!");
+john.send("Hi there!");
+jane.send("Hey!");
 
 // Output will be
-// Feb 14, 10:58 [John]: Hi there!
-// Feb 14, 10:58 [Jane]: Hey!
+// Sun Aug 11 20:25:13 CEST 2019 [ John Doe} ]: Hi there!
+// Sun Aug 11 20:25:13 CEST 2019 [ Jane Doe} ]: Hey!
 ```
 
 ## 💾 Memento
