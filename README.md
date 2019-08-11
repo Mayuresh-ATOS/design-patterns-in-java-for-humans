@@ -364,8 +364,8 @@ Wikipedia says
 
 Having said that let me add a bit about what telescoping constructor anti-pattern is. At one point or the other we have all seen a constructor like below:
 
-```c#
-public Burger(int size, bool cheese = true, bool pepperoni = true, bool tomato = false, bool lettuce = true)
+```java
+public Burger(int size, Boolean cheese = true, Boolean pepperoni = true, Boolean tomato = false, Boolean lettuce = true)
 {
 }
 ```
@@ -376,37 +376,44 @@ As you can see; the number of constructor parameters can quickly get out of hand
 
 The sane alternative is to use the builder pattern. First of all we have our burger that we want to make
 
-```c#
-class Burger {
-    protected int _size;
-    protected bool _cheese = false;
-    protected bool _pepperoni = false;
-    protected bool _lettuce = false;
-    protected bool _tomato = false;
+```java
+public class Burger {
+    protected int size;
+    protected Boolean cheese = false;
+    protected Boolean pepperoni = false;
+    protected Boolean lettuce = false;
+    protected Boolean tomato = false;
 
     public Burger(BurgerBuilder builder) {
-        _size = builder.size;
-        _cheese = builder.cheese;
-        _pepperoni = builder.pepperoni;
-        _lettuce = builder.lettuce;
-        _tomato = builder.tomato;
+        this.size = builder.size;
+        this.cheese = builder.cheese;
+        this.pepperoni = builder.pepperoni;
+        this.lettuce = builder.lettuce;
+        this.tomato = builder.tomato;
     }
 
-    public override string ToString() {
-        return $"Burger size: {_size} with: chesee: {_cheese}, pepperoni: {_pepperoni}, lettuce: {_lettuce} and tomato: {_tomato}";
+    @Override
+    public String toString() {
+        return "Burger{" +
+                "size=" + size +
+                ", cheese=" + cheese +
+                ", pepperoni=" + pepperoni +
+                ", lettuce=" + lettuce +
+                ", tomato=" + tomato +
+                '}';
     }
 }
 ```
 
 And then we have the builder
 
-```c#
-class BurgerBuilder {
-    public int size;
-    public bool cheese = false;
-    public bool pepperoni = false;
-    public bool lettuce = false;
-    public bool tomato = false;
+```java
+public class BurgerBuilder {
+    protected int size;
+    protected Boolean cheese = false;
+    protected Boolean pepperoni = false;
+    protected Boolean lettuce = false;
+    protected Boolean tomato = false;
 
     public BurgerBuilder(int size) {
         this.size = size;
@@ -440,13 +447,14 @@ class BurgerBuilder {
 
 And then it can be used as:
 
-```c#
+```java
 Burger burger = new BurgerBuilder(14)
                 .AddPepperoni()
                 .AddLettuce()
                 .AddTomato()
                 .Build();
-System.Console.WriteLine(burger.ToString());
+
+System.out.println(burger);
 ```
 
 **When to use?**
