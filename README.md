@@ -1140,43 +1140,44 @@ Wikipedia says
 
 Translating our tea example from above. First of all we have tea types and tea maker
 
-```c#
+```java
 // Anything that will be cached is flyweight.
 // Types of tea here will be flyweights.
-class KarakTea { }
+public class KarakTea { }
 
 // Acts as a factory and saves the tea
-class TeaMaker {
-    protected Dictionary<string, KarakTea> availableTea = new Dictionary<string, KarakTea>();
+public class TeaMaker {
+    protected Map<String, KarakTea> availableTea = new HashMap<String, KarakTea>();
 
-    public KarakTea Make(string preference) {
-        if(!this.availableTea.TryGetValue(preference, out KarakTea tea)) {
-            this.availableTea.Add(preference, new KarakTea());
+    public KarakTea Make(String preference) {
+        if (!this.availableTea.containsKey(preference)) {
+            this.availableTea.put(preference, new KarakTea());
         }
 
-        return this.availableTea[preference];
+        return this.availableTea.get(preference);
     }
 }
 ```
 
 Then we have the `TeaShop` which takes orders and serves them
 
-```c#
-class TeaShop {
-    protected Dictionary<int, KarakTea> orders = new Dictionary<int, KarakTea>();
+```java
+public class TeaShop {
+    protected Map<Integer, KarakTea> orders = new HashMap<Integer, KarakTea>();
+
     protected TeaMaker teaMaker;
 
     public TeaShop(TeaMaker teaMaker) {
         this.teaMaker = teaMaker;
     }
 
-    public void TakeOrder(string teaType, int table) {
-        this.orders.Add(table, this.teaMaker.Make(teaType));
+    public void takeOrder(String teaType, int table) {
+        this.orders.put(table, this.teaMaker.Make(teaType));
     }
 
-    public void Serve() {
-        foreach(var order in this.orders) {
-            System.Console.WriteLine("Serving tea to table# " + order.Key);
+    public void serve() {
+        for (Integer table : orders.keySet()) {
+            System.out.println("Serving tea to table# " + table);
         }
     }
 }
@@ -1188,11 +1189,11 @@ And it can be used as below
 TeaMaker teaMaker = new TeaMaker();
 TeaShop shop = new TeaShop(teaMaker);
 
-shop.TakeOrder("less sugar", 1);
-shop.TakeOrder("more milk", 2);
-shop.TakeOrder("without sugar", 5);
+shop.takeOrder("less sugar", 1);
+shop.takeOrder("more milk", 2);
+shop.takeOrder("without sugar", 5);
 
-shop.Serve();
+shop.serve();
 // Serving tea to table# 1
 // Serving tea to table# 2
 // Serving tea to table# 5
@@ -1216,47 +1217,59 @@ Wikipedia says
 
 Taking our security door example from above. Firstly we have the door interface and an implementation of door
 
-```c#
-interface Door {
-    string Open();
-    string Close();
+```java
+public interface IDoor {
+    String open();
+
+    String close();
 }
 
-class LabDoor : Door {
-    public string Open() => "Opening lab door";
+public class LabDoor implements IDoor {
+    @Override
+    public String open() {
+        return "Opening lab door";
+    }
 
-    public string Close() => "Closing the lab door";
+    @Override
+    public String close() {
+        return "Closing lab door";
+    }
 }
 ```
 
 Then we have a proxy to secure any doors that we want
 
-```c#
-class SecuredDoor {
-    protected Door door;
+```java
+public class SecuredDoor {
 
-    public SecuredDoor(Door door) {
+    protected IDoor door;
+
+    public SecuredDoor(IDoor door) {
         this.door = door;
     }
 
-    public string Open(string password) {
-        return this.Authenticate(password) ? this.door.Open() : "Big no! It ain't possible.";
+    public String open(String password) {
+        return this.Authenticate(password) ? this.door.open() : "Big no! It ain't possible.";
     }
 
-    public bool Authenticate(string password) => password == "$ecr@t";
+    public boolean Authenticate(String password) {
+        return password == "$ecr@t";
+    }
 
-    public string Close() => this.door.Close();
+    public String close() {
+        return this.door.close();
+    }
 }
 ```
 
 And here is how it can be used
 
-```c#
+```java
 SecuredDoor door = new SecuredDoor(new LabDoor());
-System.Console.WriteLine(door.Open("invalid")); // Big no! It ain't possible.
+System.out.println(door.open("invalid")); // Big no! It ain't possible.
 
-System.Console.WriteLine(door.Open("$ecr@t")); // Opening lab door
-System.Console.WriteLine(door.Close()); // Closing lab door
+System.out.println(door.open("$ecr@t")); // Opening lab door
+System.out.println(door.close()); // Closing lab door
 ```
 
 Yet another example would be some sort of data-mapper implementation. For example, I recently made an ODM(Object Data Mapper) for MongoDB using this pattern where I wrote a proxy around mongo classes while utilizing the magic method `__call()`. All the method calls were proxied to the original mongo class and result retrieved was returned as it is but in case of `find` or `findOne` data was mapped to the required class objects and the object was returned instead of `Cursor`.
