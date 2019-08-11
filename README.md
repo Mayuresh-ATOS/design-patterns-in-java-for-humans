@@ -632,58 +632,72 @@ Consider a game where there is a hunter and he hunts lions.
 
 First we have an interface `Lion` that all types of lions have to implement
 
-```c#
-interface Lion {
-    void Roar();
+```java
+public interface Lion {
+    String roar();
 }
 
-class AfricanLion : Lion {
-    public void Roar() => System.Console.WriteLine("Roar");
+public class AfricanLion implements Lion {
+    @Override
+    public String roar() {
+        return "Roar!";
+    }
 }
 
-class AsianLion : Lion {
-    public void Roar() => System.Console.WriteLine("Roar");
+public class AsianLion implements Lion {
+    @Override
+    public String roar() {
+        return "Roar!";
+    }
 }
 ```
 
 And hunter expects any implementation of `Lion` interface to hunt.
 
-```c#
-class Hunter {
-    public void Hunt(Lion lion) {
-        lion.Roar();
+```java
+public class Hunter {
+
+    public String hunt(Lion lion) {
+        return lion.roar();
     }
+
 }
 ```
 
 Now let's say we have to add a `WildDog` in our game so that hunter can hunt that also. But we can't do that directly because dog has a different interface. To make it compatible for our hunter, we will have to create an adapter that is compatible
 
-```c#
+```java
 // This needs to be added to the game
-class WildDog {
-    public void Bark() => System.Console.WriteLine("Bark");
+public class WildDog {
+    public String bark() {
+        return "Bark";
+    }
 }
 
 // Adapter around wild dog to make it compatible with our game
-class WildDogAdapter : Lion {
+public class WildDogAdapter implements Lion {
+
     protected WildDog dog;
 
     public WildDogAdapter(WildDog dog) {
         this.dog = dog;
     }
 
-    public void Roar() => this.dog.Bark();
+    @Override
+    public String roar() {
+        return this.dog.bark();
+    }
 }
 ```
 
 And now the `WildDog` can be used in our game using `WildDogAdapter`.
 
-```c#
-WildDog wildDog = new WildDog();
-WildDogAdapter wildDogAdapter = new WildDogAdapter(wildDog);
+```java
+ WildDog wildDog = new WildDog();
+ WildDogAdapter wildDogAdapter = new WildDogAdapter(wildDog);
 
-Hunter hunter = new Hunter();
-hunter.Hunt(wildDogAdapter);
+ Hunter hunter = new Hunter();
+ System.out.println(hunter.hunt(wildDogAdapter));
 ```
 
 ## 🚡 Bridge
