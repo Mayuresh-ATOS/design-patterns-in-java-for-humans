@@ -113,7 +113,7 @@ public class WoodenDoor implements IDoor {
 
 Then we have our door factory that makes the door and returns it
 
-```c#
+```java
 public class DoorFactory {
     public static WoodenDoor MakeDoor(float width, float height) {
         return new WoodenDoor(width, height);
@@ -159,29 +159,34 @@ Wikipedia says
 
 Taking our hiring manager example above. First of all we have an interviewer interface and some implementations for it
 
-```c#
-interface IInterviewer {
-    string AskQuestions();
+```java
+public interface IInterviewer {
+    String AskQuestions();
 }
 
-class Developer : IInterviewer {
-    public string AskQuestions() => "Asking about design patterns!";
+public class Developer implements IInterviewer {
+    @Override
+    public String AskQuestions() {
+        return "Asking about design patterns!";
+    }
 }
 
-class CommunityExecutive : IInterviewer {
-    public string AskQuestions() => "Asking about community building";
+public class CommunityExecutive implements IInterviewer {
+    @Override
+    public String AskQuestions() {
+        return "Asking about community building";
+    }
 }
 ```
 
 Now let us create our `HiringManager`
 
-```c#
-abstract class HiringManager {
-
+```java
+public abstract class HiringManager {
     // Factory method
     abstract protected IInterviewer MakeInterviewer();
 
-    public string TakeInterview() {
+    public String TakeInterview() {
         IInterviewer interviewer = MakeInterviewer();
         return interviewer.AskQuestions();
     }
@@ -190,24 +195,30 @@ abstract class HiringManager {
 
 Now any child can extend it and provide the required interviewer
 
-```c#
-class DevelopmentManager : HiringManager {
-    protected override IInterviewer MakeInterviewer() => new Developer();
+```java
+public class DevelopmentManager extends HiringManager {
+    @Override
+    protected IInterviewer MakeInterviewer() {
+        return new Developer();
+    }
 }
 
-class MarketingManager : HiringManager {
-    protected override IInterviewer MakeInterviewer() => new CommunityExecutive();
+public class MarketingManager extends HiringManager {
+    @Override
+    protected IInterviewer MakeInterviewer() {
+        return new CommunityExecutive();
+    }
 }
 ```
 
 and then it can be used as
 
-```c#
+```java
 DevelopmentManager devManager = new DevelopmentManager();
-System.Console.WriteLine(devManager.TakeInterview()); // Output: Asking about design patterns
+System.out.println(devManager.TakeInterview()); // Output: Asking about design patterns
 
 MarketingManager marketingManager = new MarketingManager();
-System.Console.WriteLine(marketingManager.TakeInterview()); // Output: Asking about community building.
+System.out.println(marketingManager.TakeInterview()); // Output: Asking about community building.
 ```
 
 **When to use?**
