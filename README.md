@@ -814,64 +814,75 @@ Wikipedia says
 
 Taking our employees example from above. Here we have different employee types
 
-```c#
-interface Employee {
-    string GetName();
-    void SetSalary(float salary);
-    float GetSalary();
-    string[] GetRoles();
+```java
+public interface Employee {
+    String getName();
+
+    void setSalary(float salary);
+
+    float getSalary();
+
+    String[] getRoles();
 }
 
-class Developer : Employee {
+public class Developer implements Employee {
+    protected String name;
     protected float salary;
-    protected string name;
-    protected string[] roles = { };
+    protected String[] roles = {};
 
-    public Developer(string name, float salary) {
+    public Developer(String name, float salary) {
         this.name = name;
         this.salary = salary;
     }
 
-    public string GetName() {
+    @Override
+    public String getName() {
         return this.name;
     }
 
-    public void SetSalary(float salary) {
+    @Override
+    public void setSalary(float salary) {
         this.salary = salary;
     }
 
-    public float GetSalary() {
+    @Override
+    public float getSalary() {
         return this.salary;
     }
 
-    public string[] GetRoles() {
+    @Override
+    public String[] getRoles() {
         return this.roles;
     }
 }
 
-class Designer : Employee {
+public class Designer implements Employee {
+    protected String name;
     protected float salary;
-    protected string name;
-    protected string[] roles = { };
+    protected String[] roles = {};
 
-    public Designer(string name, float salary) {
+    public Designer(String name, float salary) {
         this.name = name;
         this.salary = salary;
     }
 
-    public string GetName() {
+    @Override
+    public String getName() {
         return this.name;
     }
 
-    public void SetSalary(float salary) {
+    @Override
+    public void setSalary(float salary) {
         this.salary = salary;
     }
 
-    public float GetSalary() {
+    @Override
+    public float getSalary() {
         return this.salary;
     }
 
-    public string[] GetRoles() {
+    @Override
+    public String[] getRoles() {
         return this.roles;
     }
 }
@@ -879,39 +890,36 @@ class Designer : Employee {
 
 Then we have an organization which consists of several different types of employees
 
-```c#
-class Organization {
-    protected List<Employee> employees = new List<Employee>();
+```java
+public class Organization {
 
-    public void AddEmployee(Employee employee) {
-        this.employees.Add(employee);
+    protected List<Employee> employees = new ArrayList<Employee>();
+
+    public void addEmployee(Employee employee) {
+        this.employees.add(employee);
     }
 
-    public float GetNetSalaries() {
-        float netSalary = 0;
-
-        foreach(Employee employee in employees) {
-            netSalary += employee.GetSalary();
-        }
-
-        return netSalary;
+    public float getNetSalaries() {
+        return employees.stream()
+                .map(Employee::getSalary)
+                .reduce(0f, (a, b) -> a + b);
     }
 }
 ```
 
 And then it can be used as
 
-```c#
-// Prepare the employees
+```java
+ // Prepare the employees
 Developer john = new Developer("John Doe", 12000);
 Designer jane = new Designer("Jane Doe", 15000);
 
 // Add them to organization
 Organization organization = new Organization();
-organization.AddEmployee(john);
-organization.AddEmployee(jane);
+organization.addEmployee(john);
+organization.addEmployee(jane);
 
-System.Console.WriteLine("Net salaries: " + organization.GetNetSalaries()); // Net Salaries: 27000
+System.out.println("Net salaries: " + organization.getNetSalaries()); // Net Salaries: 27000
 ```
 
 ## ☕ Decorator
