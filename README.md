@@ -82,46 +82,59 @@ Wikipedia says
 
 First of all we have a door interface and the implementation
 
-```c#
-interface IDoor {
-    float GetWidth();
-    float GetHeight();
+```java
+public interface IDoor {
+    float getWidth();
+
+    float getHeight();
 }
 
-class WoodenDoor : IDoor {
-    private float _width;
-    private float _height;
+public class WoodenDoor implements IDoor {
+
+    private float width;
+    private float height;
 
     public WoodenDoor(float width, float height) {
-        _width = width;
-        _height = height;
+        this.width = width;
+        this.height = height;
     }
 
-    public float GetWidth() => _width;
+    @Override
+    public float getWidth() {
+        return width;
+    }
 
-    public float GetHeight() => _height;
+    @Override
+    public float getHeight() {
+        return height;
+    }
 }
 ```
 
 Then we have our door factory that makes the door and returns it
 
 ```c#
-class DoorFactory {
-    public static WoodenDoor MakeDoor(float width, float height) => new WoodenDoor(width, height);
+public class DoorFactory {
+    public static WoodenDoor MakeDoor(float width, float height) {
+        return new WoodenDoor(width, height);
+    }
 }
 ```
 
 And then it can be used as
 
-```c#
+```java
 // Make me a door of 100x200
 WoodenDoor door = DoorFactory.MakeDoor(100, 200);
 
-Console.WriteLine($"Width {door.GetWidth()}");
-Console.WriteLine($"Height {door.GetHeight()}");
+System.out.println("Width " + door.getWidth() + " ");
+System.out.println("Height " + door.getHeight() + " ");
 
 // Make me a door of 50x100
 WoodenDoor door2 = DoorFactory.MakeDoor(50, 100);
+
+System.out.println("Width " + door2.getWidth() + " ");
+System.out.println("Height " + door2.getHeight() + " ");
 ```
 
 **When to Use?**
