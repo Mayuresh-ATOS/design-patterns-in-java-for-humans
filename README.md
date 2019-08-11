@@ -243,69 +243,94 @@ Wikipedia says
 
 Translating the door example above. First of all we have our `Door` interface and some implementation for it
 
-```c#
-interface IDoor {
-    void GetDescription();
+```java
+public interface IDoor {
+    String GetDescription();
 }
 
-class WoodenDoor : IDoor {
-    public void GetDescription() => Console.WriteLine("I am a wooden door");
+public class WoodenDoor implements IDoor {
+    @Override
+    public String GetDescription() {
+        return "I am a wooden door";
+    }
 }
 
-class IronDoor : IDoor {
-    public void GetDescription() => Console.WriteLine("I am an iron door");
+public class IronDoor implements IDoor {
+    @Override
+    public String GetDescription() {
+        return "I am a iron door";
+    }
 }
 ```
 
 Then we have some fitting experts for each door type
 
-```c#
-interface IDoorFittingExpert {
-    void GetDescription();
+```java
+public interface IDoorFittingExpert {
+    String GetDescription();
 }
 
-class Welder : IDoorFittingExpert {
-    public void GetDescription() => Console.WriteLine("I can only fit iron doors");
+public class Welder implements IDoorFittingExpert {
+    @Override
+    public String GetDescription() {
+        return "I can only fit iron doors";
+    }
 }
 
-class Carpenter : IDoorFittingExpert {
-    public void GetDescription() => Console.WriteLine("I can only fit wooden doors");
+public class Carpenter implements IDoorFittingExpert {
+    @Override
+    public String GetDescription() {
+        return "I can only fit wooden doors";
+    }
 }
 ```
 
 Now we have our abstract factory that would let us make family of related objects i.e. wooden door factory would create a wooden door and wooden door fitting expert and iron door factory would create an iron door and iron door fitting expert
 
-```c#
-interface IDoorFactory {
+```java
+public interface IDoorFactory {
     IDoor MakeDoor();
+
     IDoorFittingExpert MakeFittingExpert();
 }
 
 // Wooden factory to return carpenter and wooden door
-class WoodenDoorFactory : IDoorFactory {
-    public IDoor MakeDoor() => new WoodenDoor();
+public class WoodenDoorFactory implements IDoorFactory {
+    @Override
+    public IDoor MakeDoor() {
+        return new WoodenDoor();
+    }
 
-    public IDoorFittingExpert MakeFittingExpert() => new Carpenter();
+    @Override
+    public IDoorFittingExpert MakeFittingExpert() {
+        return new Carpenter();
+    }
 }
 
 // Iron door factory to get iron door and the relevant fitting expert
-class IronDoorFactory : IDoorFactory {
-    public IDoor MakeDoor() => new IronDoor();
+public class IronDoorFactory implements IDoorFactory {
+    @Override
+    public IDoor MakeDoor() {
+        return new IronDoor();
+    }
 
-    public IDoorFittingExpert MakeFittingExpert() => new Welder();
+    @Override
+    public IDoorFittingExpert MakeFittingExpert() {
+        return new Welder();
+    }
 }
 ```
 
 And then it can be used as
 
-```c#
+```java
 WoodenDoorFactory woodenFactory = new WoodenDoorFactory();
 
 IDoor door = woodenFactory.MakeDoor();
 IDoorFittingExpert expert = woodenFactory.MakeFittingExpert();
 
-door.GetDescription(); // Output: I am a wooden door
-expert.GetDescription(); // Output: I can only fit wooden doors
+System.out.println(door.GetDescription()); // Output: I am a wooden door
+System.out.println(expert.GetDescription()); // Output: I can only fit wooden doors
 
 // Same for Iron Factory
 IronDoorFactory ironFactory = new IronDoorFactory();
@@ -313,8 +338,8 @@ IronDoorFactory ironFactory = new IronDoorFactory();
 door = ironFactory.MakeDoor();
 expert = ironFactory.MakeFittingExpert();
 
-door.GetDescription(); // Output: I am an iron door
-expert.GetDescription(); // Output: I can only fit iron doors
+System.out.println(door.GetDescription()); // Output: I am an iron door
+System.out.println(expert.GetDescription()); // Output: I can only fit iron doors
 ```
 
 As you can see the wooden door factory has encapsulated the `carpenter` and the `wooden door` also iron door factory has encapsulated the `iron door` and `welder`. And thus it had helped us make sure that for each of the created door, we do not get a wrong fitting expert.
