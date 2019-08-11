@@ -940,77 +940,103 @@ Wikipedia says
 
 Lets take coffee for example. First of all we have a simple coffee implementing the coffee interface
 
-```c#
-interface Coffee {
-    int GetCost();
-    string GetDescription();
+```java
+public interface Coffee {
+
+    int getCost();
+
+    String getDescription();
 }
 
-class SimpleCoffee : Coffee {
-    public int GetCost() => 10;
+public class SimpleCoffee implements Coffee {
+    @Override
+    public int getCost() {
+        return 10;
+    }
 
-    public string GetDescription() => "Simple coffee";
+    @Override
+    public String getDescription() {
+        return "Simple coffee";
+    }
 }
 ```
 
 We want to make the code extensible to allow options to modify it if required. Lets make some add-ons(decorators)
 
-```c#
-class MilkCoffee : Coffee {
+```java
+public class MilkCoffee implements Coffee {
     protected Coffee coffee;
 
     public MilkCoffee(Coffee coffee) {
         this.coffee = coffee;
     }
 
-    public int GetCost() => this.coffee.GetCost() + 2;
+    @Override
+    public int getCost() {
+        return this.coffee.getCost() + 2;
+    }
 
-    public string GetDescription() => this.coffee.GetDescription() + ", milk";
+    @Override
+    public String getDescription() {
+        return this.coffee.getDescription() + ", milk";
+    }
 }
 
-class WhipCoffee : Coffee {
+public class WhipCoffee implements Coffee {
     protected Coffee coffee;
 
     public WhipCoffee(Coffee coffee) {
         this.coffee = coffee;
     }
 
-    public int GetCost() => this.coffee.GetCost() + 5;
+    @Override
+    public int getCost() {
+        return this.coffee.getCost() + 5;
+    }
 
-    public string GetDescription() => this.coffee.GetDescription() + ", whip";
+    @Override
+    public String getDescription() {
+        return this.coffee.getDescription() + ", whip";
+    }
 }
 
-class VanillaCoffee : Coffee {
+public class VanillaCoffee implements Coffee {
     protected Coffee coffee;
 
     public VanillaCoffee(Coffee coffee) {
         this.coffee = coffee;
     }
 
-    public int GetCost() => this.coffee.GetCost() + 3;
+    @Override
+    public int getCost() {
+        return this.coffee.getCost() + 3;
+    }
 
-    public string GetDescription() => this.coffee.GetDescription() + ", vanilla";
+    @Override
+    public String getDescription() {
+        return this.coffee.getDescription() + ", vanilla";
+    }
 }
 ```
 
 Lets make a coffee now
 
-```c#
+```java
 SimpleCoffee simpleCoffee = new SimpleCoffee();
-System.Console.WriteLine(simpleCoffee.GetCost()); // 10
-System.Console.WriteLine(simpleCoffee.GetDescription()); // Simple Coffee
+System.out.println(simpleCoffee.getCost()); // 10
+System.out.println(simpleCoffee.getDescription()); // Simple Coffee
 
 MilkCoffee milkCoffee = new MilkCoffee(simpleCoffee);
-System.Console.WriteLine(milkCoffee.GetCost()); // 12
-System.Console.WriteLine(milkCoffee.GetDescription()); // Simple Coffee, milk
+System.out.println(milkCoffee.getCost()); // 12
+System.out.println(milkCoffee.getDescription()); // Simple Coffee, milk
 
 WhipCoffee whipCoffee = new WhipCoffee(simpleCoffee);
-System.Console.WriteLine(whipCoffee.GetCost()); // 17
-System.Console.WriteLine(whipCoffee.GetDescription()); // Simple Coffee, milk, whip
+System.out.println(whipCoffee.getCost()); // 17
+System.out.println(whipCoffee.getDescription()); // Simple Coffee, whip
 
 VanillaCoffee vanillaCoffee = new VanillaCoffee(simpleCoffee);
-System.Console.WriteLine(vanillaCoffee.GetCost()); // 20
-System.Console.WriteLine(vanillaCoffee.GetDescription()); // Simple Coffee, milk, whip, vanilla
+System.out.println(vanillaCoffee.getCost()); // 20
+System.out.println(vanillaCoffee.getDescription()); // Simple Coffee, vanilla
 ```
 
 ## 📦 Facade
