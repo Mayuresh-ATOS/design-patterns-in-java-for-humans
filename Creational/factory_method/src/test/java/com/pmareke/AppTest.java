@@ -1,20 +1,21 @@
 package com.pmareke;
 
-import static org.junit.Assert.assertTrue;
-
+import com.pmareke.factory.DevelopmentManager;
+import com.pmareke.factory.MarketingManager;
 import org.junit.Test;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-{
-    /**
-     * Rigorous Test :-)
-     */
+import static org.junit.Assert.assertTrue;
+
+public class AppTest {
     @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
+    public void shouldAnswerWithDevelopmentManagerAnswer() {
+        DevelopmentManager devManager = new DevelopmentManager();
+        assertTrue(devManager.TakeInterview().equals("Asking about design patterns!"));
+    }
+
+    @Test
+    public void shouldAnswerWithMarketingManagerAnswer() {
+        MarketingManager marketingManager = new MarketingManager();
+        assertTrue(marketingManager.TakeInterview().equals("Asking about community building"));
     }
 }
