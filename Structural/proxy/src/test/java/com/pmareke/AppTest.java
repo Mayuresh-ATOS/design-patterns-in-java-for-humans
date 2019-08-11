@@ -1,20 +1,23 @@
 package com.pmareke;
 
-import static org.junit.Assert.assertTrue;
-
+import com.pmareke.models.LabDoor;
+import com.pmareke.models.SecuredDoor;
 import org.junit.Test;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-{
-    /**
-     * Rigorous Test :-)
-     */
+import static org.junit.Assert.assertTrue;
+
+public class AppTest {
     @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
+    public void shouldAnswerWithInvalidPassword() {
+        SecuredDoor door = new SecuredDoor(new LabDoor());
+        assertTrue(door.open("invalid").equals("Big no! It ain't possible."));
+        assertTrue(door.close().equals("Closing lab door"));
+    }
+
+    @Test
+    public void shouldAnswerWithValidPassword() {
+        SecuredDoor door = new SecuredDoor(new LabDoor());
+        assertTrue(door.open("$ecr@t").equals("Opening lab door"));
+        assertTrue(door.close().equals("Closing lab door"));
     }
 }
