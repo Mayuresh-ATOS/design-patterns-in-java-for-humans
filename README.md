@@ -720,62 +720,82 @@ Wikipedia says
 
 Translating our WebPage example from above. Here we have the `WebPage` hierarchy
 
-```c#
-interface WebPage {
-    string GetContent();
+```java
+public interface WebPage {
+    String getContent();
 }
 
-class About : WebPage {
+public class About implements WebPage {
     protected Theme theme;
 
     public About(Theme theme) {
         this.theme = theme;
     }
 
-    public string GetContent() => "About page in " + this.theme.Color;
+    @Override
+    public String getContent() {
+        return "About page in " + this.theme.getColor();
+    }
 }
 
-class Careers : WebPage {
+public class Careers implements WebPage {
     protected Theme theme;
 
     public Careers(Theme theme) {
         this.theme = theme;
     }
 
-    public string GetContent() => "Careers page in " + this.theme.Color;
+    @Override
+    public String getContent() {
+        return "Careers page in " + this.theme.getColor();
+    }
 }
 ```
 
 And the separate theme hierarchy
 
-```c#
-interface Theme {
-    string Color { get; }
+```java
+public interface Theme {
+    String color = null;
+
+    String getColor();
 }
 
-class DarkTheme : Theme {
-    public string Color => "Dark Black";
+public class DarkTheme implements Theme {
+    public String color = "Dark Black";
+
+    public String getColor() {
+        return color;
+    }
 }
 
-class LightTheme : Theme {
-    public string Color => "Off white";
+public class LigthTheme implements Theme {
+    public String color = "Ligth";
+
+    public String getColor() {
+        return color;
+    }
 }
 
-class AquaTheme : Theme {
-    public string Color => "Light blue";
+public class AquaTheme implements Theme {
+    public String color = "Light Blue";
+
+    public String getColor() {
+        return color;
+    }
 }
 ```
 
 And both the hierarchies
 
-```c#
+```java
 DarkTheme darkTheme = new DarkTheme();
 
 About about = new About(darkTheme);
 Careers careers = new Careers(darkTheme);
 
-System.Console.WriteLine(about.GetContent()); // "About page in Dark Black";
-System.Console.WriteLine(careers.GetContent()); // "Careers page in Dark Black";
+System.out.println(about.getContent()); // "About page in Dark Black";
+System.out.println(careers.getContent()); // "Careers page in Dark Black";
 ```
 
 ## 🌿 Composite
