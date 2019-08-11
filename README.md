@@ -1512,45 +1512,84 @@ Wikipedia says
 
 Translating our radio stations example from above. First of all we have `RadioStation`
 
-```c#
-class RadioStation {
+```java
+public class RadioStation {
     protected double frequency;
 
     public RadioStation(double frequency) {
         this.frequency = frequency;
     }
 
-    public double GetFrequency() => this.frequency;
+    public double getFrequency() {
+        return frequency;
+    }
 }
 ```
 
 Then we have our iterator
 
-```c#
-class StationList : IEnumerable<RadioStation> {
-    protected List<RadioStation> stations = new List<RadioStation>();
+```java
+public class StationList implements Container {
+
+    protected List<RadioStation> stations = new ArrayList<RadioStation>();
 
     public void AddStation(RadioStation station) {
-        this.stations.Add(station);
+        this.stations.add(station);
     }
 
-    public void RemoveStation(RadioStation toRemove) {
-        this.stations = this.stations.Where(s => s.GetFrequency() != toRemove.GetFrequency()).ToList();
+    public void RemoveStation(final RadioStation toRemove) {
+        this.stations = this.stations.stream()
+                .filter(s -> s.frequency != toRemove.getFrequency())
+                .collect(Collectors.toList());
     }
 
-    public IEnumerator<RadioStation> GetEnumerator() {
-        foreach(RadioStation radio in stations) {
-            yield return radio;
+    @Override
+    public Iterator getIterator() {
+        return new NameIterator();
+    }
+
+    private class NameIterator implements Iterator {
+
+        int index;
+
+        @Override
+        public boolean hasNext() {
+
+            if (index < stations.size()) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Object next() {
+
+            if (this.hasNext()) {
+                return stations.get(index++);
+            }
+            return null;
         }
     }
-
-    IEnumerator IEnumerable.GetEnumerator() => stations.GetEnumerator();
 }
 ```
 
-And then it can be used as
+Who implements the following interfaces
 
-```c#
+```java
+public interface Container {
+    public Iterator getIterator();
+}
+
+public interface Iterator {
+    public boolean hasNext();
+
+    public Object next();
+}
+```
+
+And finally it can be used as
+
+```java
 StationList stationList = new StationList();
 
 stationList.AddStation(new RadioStation(89));
@@ -1558,9 +1597,10 @@ stationList.AddStation(new RadioStation(101));
 stationList.AddStation(new RadioStation(102));
 stationList.AddStation(new RadioStation(103.2));
 
-    foreach(RadioStation radio in stationList) {
-        System.Console.WriteLine(radio.GetFrequency());
-    }
+        for (Iterator iter = stationList.getIterator(); iter.hasNext(); ) {
+            RadioStation radio = (RadioStation) iter.next();
+            System.out.println(radio.getFrequency());
+        }
 
 stationList.RemoveStation(new RadioStation(89)); // Will remove station 89
 ```
