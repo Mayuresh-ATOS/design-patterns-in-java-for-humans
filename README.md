@@ -1057,55 +1057,69 @@ Wikipedia says
 
 Taking our computer example from above. Here we have the computer class
 
-```c#
-class Computer {
-    public string GetElectricShock() => "Ouch!";
+```java
+public class Computer {
+    public void getElectricShock() {
+        System.out.println("Ouch!");
+    }
 
-    public string MakeSound() => "Beep beep!";
+    public void makeSound() {
+        System.out.println("Beep beep!");
+    }
 
-    public string ShowLoadingScreen() => "Loading..";
+    public void showLoadingScreen() {
+        System.out.println("Loading..");
+    }
 
-    public string Bam() => "Ready to be used!";
+    public void bam() {
+        System.out.println("Ready to be used!");
+    }
 
-    public string CloseEverything() => "Bup bup bup buzzzz!";
+    public void closeEverything() {
+        System.out.println("Bup bup bup buzzzz!");
+    }
 
-    public string Sooth() => "Zzzzz";
+    public void sooth() {
+        System.out.println("Zzzzz");
+    }
 
-    public string PullCurrent() => "Haaah!";
+    public void pullCurrent() {
+        System.out.println("Haaah!");
+    }
 }
 ```
 
 Here we have the facade
 
-```c#
-class ComputerFacade {
+```java
+public class ComputerFacade {
     protected Computer computer;
 
     public ComputerFacade(Computer computer) {
         this.computer = computer;
     }
 
-    public void TurnOn() {
-        this.computer.GetElectricShock();
-        this.computer.MakeSound();
-        this.computer.ShowLoadingScreen();
-        this.computer.Bam();
+    public void turnOn() {
+        this.computer.getElectricShock();
+        this.computer.makeSound();
+        this.computer.showLoadingScreen();
+        this.computer.bam();
     }
 
-    public void TurnOff() {
-        this.computer.CloseEverything();
-        this.computer.PullCurrent();
-        this.computer.Sooth();
+    public void turnOff() {
+        this.computer.closeEverything();
+        this.computer.pullCurrent();
+        this.computer.sooth();
     }
 }
 ```
 
 Now to use the facade
 
-```c#
+```java
 ComputerFacade computer = new ComputerFacade(new Computer());
-computer.TurnOn(); // Ouch! Beep beep! Loading.. Ready to be used!
-computer.TurnOff(); // Bup bup buzzz! Haah! Zzzzz
+computer.turnOn(); // Ouch! Beep beep! Loading.. Ready to be used!
+computer.turnOff(); // Bup bup buzzz! Haah! Zzzzz
 ```
 
 ## 🍃 Flyweight
