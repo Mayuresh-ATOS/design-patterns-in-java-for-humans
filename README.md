@@ -562,8 +562,8 @@ Singleton pattern is actually considered an anti-pattern and overuse of it shoul
 
 To create a singleton, make the constructor private, disable cloning, disable extension and create a static variable to house the instance
 
-```c#
-public sealed class President
+```java
+public final class President
 {
     private static President instance;
 
@@ -572,7 +572,7 @@ public sealed class President
         // Hide the constructor
     }
 
-    public static President GetInstance()
+    public static President getInstance()
     {
          if(instance == null)
             {
@@ -585,11 +585,11 @@ public sealed class President
 
 Then in order to use
 
-```c#
-President p1 = President.GetInstance();
-President p2 = President.GetInstance();
+```java
+President p1 = President.getInstance();
+President p2 = President.getInstance();
 
-System.Console.WriteLine(p1 == p2); // true
+System.out.println(p1.equals(p2)); // true
 ```
 
 # Structural Design Patterns
