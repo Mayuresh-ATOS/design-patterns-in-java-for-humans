@@ -1313,42 +1313,44 @@ Wikipedia says
 
 Translating our account example above. First of all we have a base account having the logic for chaining the accounts together and some accounts
 
-```c#
-abstract class Account {
+```java
+public abstract class Account {
     private Account successor;
     protected float balance;
 
-    public void SetNext(Account account) {
+    public void setNext(Account account) {
         this.successor = account;
     }
 
-    public void Pay(float amountToPay) {
-        if(this.CanPay(amountToPay)) {
-            System.Console.WriteLine($"Paid {amountToPay} using {this.GetType()}");
-        } else if(this.successor != null) {
-            System.Console.WriteLine($"Cannot pay using {this.GetType()}, proceeding..");
-            this.successor.Pay(amountToPay);
+    public void pay(float amountToPay) throws Exception {
+        if (this.canPay(amountToPay)) {
+            System.out.println(String.format("Paid %s using %s", amountToPay, this.getClass().getSimpleName()));
+        } else if (this.successor != null) {
+            System.out.println(String.format("Cannot pay using %s, proceeding..", this.getClass().getSimpleName()));
+            this.successor.pay(amountToPay);
         } else {
             throw new Exception("None of the accounts have enough balance");
         }
     }
 
-    public bool CanPay(float amount) => this.balance >= amount;
+    public boolean canPay(float amount) {
+        return this.balance >= amount;
+    }
 }
 
-class Bank : Account {
+public class Bank extends Account {
     public Bank(float balance) {
         this.balance = balance;
     }
 }
 
-class Paypal : Account {
+public class Paypal extends Account {
     public Paypal(float balance) {
         this.balance = balance;
     }
 }
 
-class Bitcoin : Account {
+public class Bitcoin extends Account {
     public Bitcoin(float balance) {
         this.balance = balance;
     }
@@ -1357,7 +1359,7 @@ class Bitcoin : Account {
 
 Now let's prepare the chain using the links defined above(i.e. Bank, Paypal, Bitcoin)
 
-```c#
+```java
 // Let's prepare a chain like below
 //      $bank->$paypal->$bitcoin
 //
@@ -1369,11 +1371,11 @@ Bank bank = new Bank(100); // Bank with balance 100
 Paypal paypal = new Paypal(200); // Paypal with balance 200
 Bitcoin bitcoin = new Bitcoin(300); // Bitcoin with balance 300
 
-bank.SetNext(paypal);
-paypal.SetNext(bitcoin);
+bank.setNext(paypal);
+paypal.setNext(bitcoin);
 
 // Let's try to pay using the first priority i.e. bank
-bank.Pay(259);
+bank.pay(259);
 
 // Output will be
 // ==============
