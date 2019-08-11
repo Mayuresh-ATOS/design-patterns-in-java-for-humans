@@ -1403,69 +1403,86 @@ Wikipedia says
 
 First of all we have the receiver that has the implementation of every action that could be performed
 
-```c#
+```java
 // Receiver
-class Bulb
-{
-    public string TurnOn() => "Bulb has been lit";
+public class Bulb {
+    public String turnOn() {
+        return "Bulb has been lit!";
+    }
 
-    public string TurnOff() => "Darkness!";
+    public String turnOff() {
+        return "Darkness!";
+    }
 }
 ```
 
 then we have an interface that each of the commands are going to implement and then we have a set of commands
 
-```c#
-interface Command
-{
-    string Execute();
-    string Undo();
-    string Redo();
+```java
+public interface Command {
+    String execute();
+
+    String undo();
+
+    String redo();
 }
 
-class TurnOn : Command {
+public class TurnOn implements Command {
     protected Bulb bulb;
 
     public TurnOn(Bulb bulb) {
         this.bulb = bulb;
     }
 
-    public string Execute() => this.bulb.TurnOn();
+    public String execute() {
+        return this.bulb.turnOn();
+    }
 
-    public string Undo() => this.bulb.TurnOff();
+    public String undo() {
+        return this.bulb.turnOff();
+    }
 
-    public string Redo() => this.Execute();
+    public String redo() {
+        return this.bulb.turnOn();
+    }
 }
 
-class TurnOff : Command {
+public class TurnOff implements Command {
     protected Bulb bulb;
 
     public TurnOff(Bulb bulb) {
         this.bulb = bulb;
     }
 
-    public string Execute() => this.bulb.TurnOff();
+    public String execute() {
+        return this.bulb.turnOff();
+    }
 
-    public string Undo() => this.bulb.TurnOn();
+    public String undo() {
+        return this.bulb.turnOn();
+    }
 
-    public string Redo() => this.Execute();
+    public String redo() {
+        return this.bulb.turnOff();
+    }
 }
 ```
 
 Then we have an `Invoker` with whom the client will interact to process any commands
 
-```c#
+```java
 // Invoker
-class RemoteControl
-{
-    public void Submit(Command command) => System.Console.WriteLine(command.Execute());
+public class RemoteControl {
+    public String submit(Command command) {
+        return command.execute();
+    }
 }
 ```
 
 Finally let's see how we can use it in our client
 
-```c#
-Bulb bulb = new Bulb();
+```java
+ Bulb bulb = new Bulb();
 
 TurnOn turnOn = new TurnOn(bulb);
 TurnOff turnOff = new TurnOff(bulb);
