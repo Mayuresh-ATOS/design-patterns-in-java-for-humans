@@ -479,52 +479,63 @@ In short, it allows you to create a copy of an existing object and modify it to 
 
 **Programmatic Example**
 
-In C#, it can be easily done using `MemberwiseClone`
+In Java, it can be easily done implementing the Clonable interface
 
-```c#
-class Sheep {
-    protected string _name { get; set; }
-    protected string _category { get; set; }
+```java
+public class Sheep implements Cloneable {
+    protected String name;
+    protected String category;
 
-    public Sheep(string name, string category = "Mountain Sheep") {
-        _name = name;
-        _category = category;
+    public String getName() {
+        return name;
     }
 
-    public Sheep Clone() {
-        return(Sheep) this.MemberwiseClone();
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void SetName(string name) {
-        _name = name;
+    public String getCategory() {
+        return category;
     }
 
-    public void GetName() {
-        System.Console.WriteLine(_name);
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public void SetCategory(string category) {
-        _category = category;
+    public Sheep(String name, String category) {
+        this.name = name;
+        this.category = this.category == null ? "Mountain Sheep" : category;
     }
 
-    public void GetCategory() {
-        System.Console.WriteLine(_category);
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Sheep sheep;
+        try {
+            sheep = (Sheep) super.clone();
+        } catch (CloneNotSupportedException e) { // this should never happen
+            System.out.println("CloneNotSupportedException thrown " + e);
+            return null;
+        }
+        return sheep;
     }
 }
 ```
 
 Then it can be cloned like below
 
-```c#
-Sheep original = new Sheep("Jolly");
-original.GetName(); // Jolly
-original.GetCategory(); // Mountain Sheep
+```java
+Sheep original = new Sheep("Jolly", null);
 
 // Clone and modify what is required
-Sheep cloned = original.Clone();
-cloned.SetName("Dolly");
-cloned.GetName(); // Dolly
-cloned.GetCategory(); // Mountain sheep
+Sheep cloned = (Sheep) original.clone();
+cloned.setName("Dolly");
+cloned.setCategory("Cloned Sheep");
+
+System.out.println(original.getName()); // Jolly
+System.out.println(original.getCategory()); // Mountain Sheep
+        
+System.out.println(cloned.getName()); // Dolly
+System.out.println(cloned.getCategory()); // Mountain sheep
 ```
 
 **When to use?**
