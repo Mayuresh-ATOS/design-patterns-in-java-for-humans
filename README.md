@@ -734,7 +734,7 @@ public class About implements WebPage {
 
     @Override
     public String getContent() {
-        return "About page in " + this.theme.getColor();
+        return "About page in " + this.theme.color();
     }
 }
 
@@ -747,7 +747,7 @@ public class Careers implements WebPage {
 
     @Override
     public String getContent() {
-        return "Careers page in " + this.theme.getColor();
+        return "Careers page in " + this.theme.color();
     }
 }
 ```
@@ -756,15 +756,13 @@ And the separate theme hierarchy
 
 ```java
 public interface Theme {
-    String color = null;
-
-    String getColor();
+    String color();
 }
 
 public class DarkTheme implements Theme {
     public String color = "Dark Black";
 
-    public String getColor() {
+    public String color() {
         return color;
     }
 }
@@ -772,7 +770,7 @@ public class DarkTheme implements Theme {
 public class LigthTheme implements Theme {
     public String color = "Ligth";
 
-    public String getColor() {
+    public String color() {
         return color;
     }
 }
@@ -780,7 +778,7 @@ public class LigthTheme implements Theme {
 public class AquaTheme implements Theme {
     public String color = "Light Blue";
 
-    public String getColor() {
+    public String color() {
         return color;
     }
 }
