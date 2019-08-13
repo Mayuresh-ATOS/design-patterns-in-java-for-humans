@@ -2107,28 +2107,37 @@ Let's take an example of text editor, it lets you change the state of text that 
 
 First of all we have our state interface and some state implementations
 
-```c#
-interface WritingState {
-    void write(string words);
+```java
+public interface WritingState {
+    String write(String words);
 }
 
-class UpperCase : WritingState {
-    public void write(string words) => System.Console.WriteLine(words.ToUpper());
+public class UpperCase implements WritingState {
+    @Override
+    public String write(String words) {
+        return words.toUpperCase();
+    }
 }
 
-class LowerCase : WritingState {
-    public void write(string words) => System.Console.WriteLine(words.ToLower());
+public class LowerCase implements WritingState {
+    @Override
+    public String write(String words) {
+        return words.toLowerCase();
+    }
 }
 
-class DefaultText : WritingState {
-    public void write(string words) => System.Console.WriteLine(words);
+public class DefaultText implements WritingState {
+    @Override
+    public String write(String words) {
+        return words;
+    }
 }
 ```
 
 Then we have our editor
 
-```c#
-class TextEditor {
+```java
+public class TextEditor {
     protected WritingState state;
 
     public TextEditor(WritingState state) {
@@ -2139,28 +2148,28 @@ class TextEditor {
         this.state = state;
     }
 
-    public void type(string words) {
-        this.state.write(words);
+    public String type(String words) {
+        return this.state.write(words);
     }
 }
 ```
 
 And then it can be used as
 
-```c#
+```java
 TextEditor editor = new TextEditor(new DefaultText());
 
-editor.type("First line");
+System.out.println(editor.type("First line"));
 
 editor.setState(new UpperCase());
 
-editor.type("Second line");
-editor.type("Third line");
+System.out.println(editor.type("Second line"));
+System.out.println(editor.type("Third line"));
 
 editor.setState(new LowerCase());
 
-editor.type("Fourth line");
-editor.type("Fifth line");
+System.out.println(editor.type("Fourth line"));
+System.out.println(editor.type("Fifth line"));
 
 // Output:
 // First line
