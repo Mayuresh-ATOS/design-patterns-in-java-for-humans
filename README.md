@@ -2206,11 +2206,11 @@ Imagine we have a build tool that helps us test, lint, build, generate build rep
 
 First of all we have our base class that specifies the skeleton for the build algorithm
 
-```c#
-abstract class Builder {
+```java
+abstract public class Builder {
 
     // Template method
-    public void Build() {
+    public void build() {
         this.Test();
         this.Lint();
         this.Assemble();
@@ -2218,57 +2218,60 @@ abstract class Builder {
     }
 
     abstract public void Test();
+
     abstract public void Lint();
+
     abstract public void Assemble();
+
     abstract public void Deploy();
 }
 ```
 
 Then we can have our implementations
 
-```c#
-class AndroidBuilder : Builder {
-    public override void Test() {
-        System.Console.WriteLine("Running android tests");
+```java
+public class AndroidBuilder extends Builder {
+    @Override
+    public void Test() {
+        System.out.println("Running android tests");
     }
 
-    public override void Lint() {
-        System.Console.WriteLine("Linting the android code");
+    @Override
+    public void Lint() {
+        System.out.println("Linting the android code");
     }
 
-    public override void Assemble() {
-        System.Console.WriteLine("Assembling the android build");
+    @Override
+    public void Assemble() {
+        System.out.println("Assembling the android build");
     }
 
-    public override void Deploy() {
-        System.Console.WriteLine("Deploying android build to server");
+    @Override
+    public void Deploy() {
+        System.out.println("Deploying android build to server");
     }
 }
 
-class IosBuilder : Builder {
-    public override void Test() {
-        System.Console.WriteLine("Running ios tests");
-    }
+public class IosBuilder extends Builder {
+    @Override
+    public void Test() { System.out.println("Running ios tests"); }
 
-    public override void Lint() {
-        System.Console.WriteLine("Linting the ios code");
-    }
+    @Override
+    public void Lint() { System.out.println("Linting the ios code"); }
 
-    public override void Assemble() {
-        System.Console.WriteLine("Assembling the ios build");
-    }
+    @Override
+    public void Assemble() { System.out.println("Assembling the ios build"); }
 
-    public override void Deploy() {
-        System.Console.WriteLine("Deploying ios build to server");
-    }
+    @Override
+    public void Deploy() { System.out.println("Deploying ios build to server"); }
 }
 ```
 
 And then it can be used as
 
-```c#
+```java
 AndroidBuilder androidBuilder = new AndroidBuilder();
-androidBuilder.Build();
+androidBuilder.build();
 
 // Output:
 // Running android tests
@@ -2277,7 +2280,7 @@ androidBuilder.Build();
 // Deploying android build to server
 
 IosBuilder iosBuilder = new IosBuilder();
-iosBuilder.Build();
+iosBuilder.build();
 
 // Output:
 // Running ios tests
