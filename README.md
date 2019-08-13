@@ -1903,104 +1903,119 @@ Wikipedia says
 
 Let's take an example of a zoo simulation where we have several different kinds of animals and we have to make them Sound. Let's translate this using visitor pattern
 
-```c#
+```java
 
 // Visitee
-interface Animal {
-    void Accept(AnimalOperation operation);
+public interface Animal {
+    String accept(AnimalOperation operation);
 }
 
 // Visitor
-interface AnimalOperation {
-    void VisitMonkey(Monkey monkey);
-    void VisitLion(Lion lion);
-    void VisitDolphin(Dolphin dolphin);
+public interface AnimalOperation {
+    String visitMonkey(Monkey monkey);
+
+    String visitLion(Lion lion);
+
+    String visitDolphin(Dolphin dolphin);
 }
 ```
 
 Then we have our implementations for the animals
 
-```c#
-class Monkey : Animal {
-    public void Shout() {
-        System.Console.WriteLine("Ooh oo aa aa!");
+```java
+public class Monkey implements Animal {
+    public String shout() {
+        return "Ooh oo aa aa!";
     }
 
-    public void Accept(AnimalOperation operation) {
-        operation.VisitMonkey(this);
-    }
-}
-
-class Lion : Animal {
-    public void Roar() => System.Console.WriteLine("Roaaar!");
-
-    public void Accept(AnimalOperation operation) {
-        operation.VisitLion(this);
+    @Override
+    public String accept(AnimalOperation operation) {
+        return operation.visitMonkey(this);
     }
 }
 
-class Dolphin : Animal {
-    public void Speak() => System.Console.WriteLine("Tuut tuttu tuutt!");
+public class Lion implements Animal {
+    public String roar() {
+        return "Roaaar!";
+    }
 
-    public void Accept(AnimalOperation operation) {
-        operation.VisitDolphin(this);
+    @Override
+    public String accept(AnimalOperation operation) {
+        return operation.visitLion(this);
+    }
+}
+
+public class Dolphin implements Animal {
+    public String speak() {
+        return "Tuut tuttu tuutt!";
+    }
+
+    @Override
+    public String accept(AnimalOperation operation) {
+        return operation.visitDolphin(this);
     }
 }
 ```
 
 Let's implement our visitor
 
-```c#
-class Speak : AnimalOperation {
-    public void VisitMonkey(Monkey monkey) {
-        monkey.Shout();
+```java
+public class Speak implements AnimalOperation {
+    @Override
+    public String visitMonkey(Monkey monkey) {
+        return monkey.shout();
     }
 
-    public void VisitLion(Lion lion) {
-        lion.Roar();
+    @Override
+    public String visitLion(Lion lion) {
+        return lion.roar();
     }
 
-    public void VisitDolphin(Dolphin dolphin) {
-        dolphin.Speak();
+    @Override
+    public String visitDolphin(Dolphin dolphin) {
+        return dolphin.speak();
     }
 }
 ```
 
 And then it can be used as
 
-```c#
+```java
 Monkey monkey = new Monkey();
 Lion lion = new Lion();
 Dolphin dolphin = new Dolphin();
 
 Speak speak = new Speak();
 
-monkey.Accept(speak); // Ooh oo aa aa!
-lion.Accept(speak); // Roaaar!
-dolphin.Accept(speak); // Tuut tutt tuutt!
+System.out.println(monkey.accept(speak)); // Ooh oo aa aa!
+System.out.println(lion.accept(speak)); // Roaaar!
+System.out.println(dolphin.accept(speak)); // Tuut tutt tuutt!
 ```
 
 We could have done this simply by having an inheritance hierarchy for the animals but then we would have to modify the animals whenever we would have to add new actions to animals. But now we will not have to change them. For example, let's say we are asked to add the jump behavior to the animals, we can simply add that by creating a new visitor i.e.
 
-```c#
-class Jump : AnimalOperation {
-    public void VisitMonkey(Monkey monkey) {
-        System.Console.WriteLine("Jumped 20 feet high! on to the tree!");
+```java
+public class Jump implements AnimalOperation {
+    @Override
+    public String visitMonkey(Monkey monkey) {
+        return "Jumped 20 feet high! on to the tree!";
     }
 
-    public void VisitLion(Lion lion) {
-        System.Console.WriteLine("Jumped 7 feet! Back on the ground!");
+    @Override
+    public String visitLion(Lion lion) {
+        return "Jumped 7 feet! Back on the ground!";
     }
 
-    public void VisitDolphin(Dolphin dolphin) {
-        System.Console.WriteLine("Walked on water a little and disappeared");
+    @Override
+    public String visitDolphin(Dolphin dolphin) {
+        return "Walked on water a little and disappeared";
     }
 }
 ```
 
 And for the usage
 
-```c#
+```java
 Monkey monkey = new Monkey();
 Lion lion = new Lion();
 Dolphin dolphin = new Dolphin();
@@ -2008,14 +2023,15 @@ Dolphin dolphin = new Dolphin();
 Speak speak = new Speak();
 Jump jump = new Jump();
 
-monkey.Accept(speak); // Ooh oo aa aa!
-monkey.Accept(jump); // Jumped 20 feet high! on to the tree!
 
-lion.Accept(speak); // Roaaar!
-lion.Accept(jump); // Jumped 7 feet! Back on the ground!
+System.out.println(monkey.accept(speak)); // Ooh oo aa aa!
+System.out.println(monkey.accept(jump)); // Jumped 20 feet high! on to the tree!
 
-dolphin.Accept(speak); // Tuut tutt tuutt!
-dolphin.Accept(jump); // Walked on water a little and disappeared
+System.out.println(lion.accept(speak)); // Roaaar!
+System.out.println(lion.accept(jump)); // Jumped 7 feet! Back on the ground!
+
+System.out.println(dolphin.accept(speak)); // Tuut tutt tuutt!
+System.out.println(dolphin.accept(jump)); // Walked on water a little and disappeared
 ```
 
 ## 💡 Strategy
