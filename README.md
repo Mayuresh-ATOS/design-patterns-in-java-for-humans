@@ -2036,25 +2036,23 @@ Wikipedia says
 
 Translating our example from above. First of all we have our strategy interface and different strategy implementations
 
-```c#
-interface SortStrategy {
-    int[] Sort(int[] dataset);
+```java
+public interface SortStrategy {
+    int[] sort(int[] dataset);
 }
 
-class BubbleSortStrategy : SortStrategy {
-    public int[] Sort(int[] dataset) {
-        System.Console.WriteLine("Sorting using bubble sort");
-
-        // Do sorting
+public class BubbleSortStrategy implements SortStrategy {
+    @Override
+    public int[] sort(int[] dataset) {
+        System.out.println("Sorting using bubble sort");
         return dataset;
     }
 }
 
-class QuickSortStrategy : SortStrategy {
-    public int[] Sort(int[] dataset) {
-        System.Console.WriteLine("Sorting using quick sort");
-
-        // Do sorting
+public class QuickSortStrategy implements SortStrategy {
+    @Override
+    public int[] sort(int[] dataset) {
+        System.out.println("Sorting using quick sort");
         return dataset;
     }
 }
@@ -2062,28 +2060,30 @@ class QuickSortStrategy : SortStrategy {
 
 And then we have our client that is going to use any strategy
 
-```c#
-class Sorter {
+```java
+public class Sorter {
     protected SortStrategy sorter;
 
     public Sorter(SortStrategy sorter) {
         this.sorter = sorter;
     }
 
-    public int[] Sort(int[] dataset) => this.sorter.Sort(dataset);
+    public int[] sort(int[] dataset) {
+        return this.sorter.sort(dataset);
+    }
 }
 ```
 
 And it can be used as
 
-```c#
-int[] dataset = { 1, 5, 4, 3, 2, 8 };
+```java
+int[] dataset = {1, 5, 4, 3, 2, 8};
 
 Sorter sorter = new Sorter(new BubbleSortStrategy());
-sorter.Sort(dataset); // Output : Sorting using bubble sort
+sorter.sort(dataset); // Output : Sorting using bubble sort
 
 sorter = new Sorter(new QuickSortStrategy());
-sorter.Sort(dataset); // Output : Sorting using quick sort
+sorter.sort(dataset); // Output : Sorting using quick sort
 ```
 
 ## 💢 State
