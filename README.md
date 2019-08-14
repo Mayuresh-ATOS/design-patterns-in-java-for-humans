@@ -1783,106 +1783,105 @@ Wikipedia says
 
 Translating our example from above. First of all we have job seekers that need to be notified for a job posting
 
-```c#
-class JobPost {
-    public string title;
+```java
+public class JobPost {
+    public String title;
 
-    public JobPost(string title) {
+    public JobPost(String title) {
         this.title = title;
     }
 
-    public string getTitle() => this.title;
+    public String getTitle() {
+        return title;
+    }
 }
 
-class JobSeeker : IObserver<JobPost> {
-    protected string name;
+public interface Observer {
+    public void update(JobPost jobPost);
+}
 
-    public JobSeeker(string name) {
+public class JobSeeker implements Observer {
+    private JobPost jobPost;
+    private Subject subscriberGrabber;
+    private String name;
+
+    public JobSeeker(Subject subscriptionGrabber, String name) {
         this.name = name;
+        this.subscriberGrabber = subscriptionGrabber;
+        subscriberGrabber.addNewSubscriber(this);
+        System.out.println("New Observer: " + this.name);
     }
 
-    public void OnCompleted() {
-        throw new NotImplementedException();
-    }
-
-    public void OnError(Exception error) {
-        throw new NotImplementedException();
-    }
-
-    public void OnNext(JobPost value) {
-        Console.WriteLine("Hi {0} ! New job posted: {1}", name, value.title);
+    public void update(JobPost jobPost) {
+        System.out.println("JobSeeker " + name + ", detected changed from JobPost " + jobPost.title);
+        this.jobPost = jobPost;
     }
 }
-
 ```
 
 Then we have our job postings to which the job seekers will subscribe
 
-```c#
-class JobPostings : IObservable<JobPost> {
-    private List<IObserver<JobPost>> mObservers;
-    private List<JobPost> mJobPostings;
+```java
+public interface Subject {
+    public JobPost getCurrentJobPost();
 
-    public JobPostings() {
-        mObservers = new List<IObserver<JobPost>>();
-        mJobPostings = new List<JobPost>();
-    }
+    public void setNewJobPost(JobPost newPrice);
 
-    public IDisposable Subscribe(IObserver<JobPost> observer) {
-        // Check whether observer is already registered. If not, add it
-        if(!mObservers.Contains(observer)) {
-            mObservers.Add(observer);
-        }
-        return new Unsubscriber<JobPost>(mObservers, observer);
-    }
+    public void addNewSubscriber(Observer newSuObserver);
 
-    private void Notify(JobPost jobPost) {
-        foreach(var observer in mObservers) {
-            observer.OnNext(jobPost);
-        }
-    }
+    public void removeSubscriber(Observer unsubscriber);
 
-    public void AddJob(JobPost jobPost) {
-        mJobPostings.Add(jobPost);
-        Notify(jobPost);
-    }
-
+    public void notifyAllSubscribers();
 }
 
-internal class Unsubscriber<JobPost> : IDisposable {
-    private List<IObserver<JobPost>> mObservers;
-    private IObserver<JobPost> mObserver;
+public class JobPostings implements Subject {
+    private List<Observer> subscribers = new ArrayList<Observer>();
+    private JobPost jobPost;
 
-    internal Unsubscriber(List<IObserver<JobPost>> observers, IObserver<JobPost> observer) {
-        this.mObservers = observers;
-        this.mObserver = observer;
+    @Override
+    public JobPost getCurrentJobPost() {
+        return jobPost;
     }
 
-    public void Dispose() {
-        if(mObservers.Contains(mObserver))
-            mObservers.Remove(mObserver);
+    @Override
+    public void setNewJobPost(JobPost jobPost) {
+        this.jobPost = jobPost;
+        notifyAllSubscribers();
+    }
+
+    public void addNewSubscriber(Observer newSubscriber) {
+        subscribers.add(newSubscriber);
+    }
+
+    public void removeSubscriber(Observer unsubscriber) {
+        int indexOfUnsubscriber = subscribers.indexOf(unsubscriber);
+        subscribers.remove(indexOfUnsubscriber);
+    }
+
+    public void notifyAllSubscribers() {
+        for (Observer subscriber : subscribers) {
+            subscriber.update(jobPost);
+        }
     }
 }
 ```
 
 Then it can be used as
 
-```c#
-//Create Subscribers
-JobSeeker johnDoe = new JobSeeker("John Doe");
-JobSeeker janeDoe = new JobSeeker("Jane Doe");
+```java
+//Create JobPostings
+JobPostings jobPostings = new JobPostings();
 
-//Create publisher and attch subscribers
-var jobPostings = new JobPostings();
-jobPostings.Subscribe(johnDoe);
-jobPostings.Subscribe(janeDoe);
+//Create and attach Subscribers
+JobSeeker johnDoe = new JobSeeker(jobPostings, "John Doe");
+JobSeeker janeDoe = new JobSeeker(jobPostings, "Jane Doe");
 
 //Add a new job and see if subscribers get notified
-jobPostings.AddJob(new JobPost("Software Engineer"));
+jobPostings.setNewJobPost(new JobPost("Software Engineer"));
 
 //Output
-// Hi John Doe! New job posted: Software Engineer
-// Hi Jane Doe! New job posted: Software Engineer
+// JobSeeker John Doe, detected changed from JobPost Software Engineer
+// JobSeeker Jane Doe, detected changed from JobPost Software Engineer
 ```
 
 ## 🏃 Visitor
