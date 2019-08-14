@@ -2227,19 +2227,19 @@ abstract public class Builder {
 
     // Template method
     public void build() {
-        this.Test();
-        this.Lint();
-        this.Assemble();
-        this.Deploy();
+        this.test();
+        this.lint();
+        this.assemble();
+        this.deploy();
     }
 
-    abstract public void Test();
+    abstract public void test();
 
-    abstract public void Lint();
+    abstract public void lint();
 
-    abstract public void Assemble();
+    abstract public void assemble();
 
-    abstract public void Deploy();
+    abstract public void deploy();
 }
 ```
 
@@ -2248,38 +2248,38 @@ Then we can have our implementations
 ```java
 public class AndroidBuilder extends Builder {
     @Override
-    public void Test() {
+    public void dest() {
         System.out.println("Running android tests");
     }
 
     @Override
-    public void Lint() {
+    public void lint() {
         System.out.println("Linting the android code");
     }
 
     @Override
-    public void Assemble() {
+    public void assemble() {
         System.out.println("Assembling the android build");
     }
 
     @Override
-    public void Deploy() {
+    public void deploy() {
         System.out.println("Deploying android build to server");
     }
 }
 
 public class IosBuilder extends Builder {
     @Override
-    public void Test() { System.out.println("Running ios tests"); }
+    public void test() { System.out.println("Running ios tests"); }
 
     @Override
-    public void Lint() { System.out.println("Linting the ios code"); }
+    public void lint() { System.out.println("Linting the ios code"); }
 
     @Override
-    public void Assemble() { System.out.println("Assembling the ios build"); }
+    public void assemble() { System.out.println("Assembling the ios build"); }
 
     @Override
-    public void Deploy() { System.out.println("Deploying ios build to server"); }
+    public void deploy() { System.out.println("Deploying ios build to server"); }
 }
 ```
 
